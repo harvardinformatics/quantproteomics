@@ -182,7 +182,8 @@ shinyServer(function(input, output, session) {
       
       #change file name
       e <- exprs(resmir5a6vsn.mss)
-      p <- plotPCA_sc_v2(e, pd, '1', title=paste('', ''))
+      p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
+        theme_classic()
       tiff(paste("FASInformatics/Figures/", input$outputfile, "_PCA.tiff"), width = 4, height = 4, units = 'in', res = 600)
       
       plot(p)
@@ -210,17 +211,33 @@ shinyServer(function(input, output, session) {
     })
     
     dataFilter <- reactive({
-      dataFrame()[dataFrame()$logFC > input$fcCut,]
+      dataFrame()[dataFrame()$logFC > input$fcCut[1] & dataFrame()$logFC < input$fcCut[2],]
     })
     
     output$volcanoPlot <- renderPlot({
-      ggplot(dataFilter(),aes(x=logFC,y=-log(P.Value,10))) + geom_point(size=2, alpha=1, col='black') +
+        
+        ggplot(dataFilter(),aes(x=logFC,y=-log(P.Value,10))) + geom_point(size=2, alpha=1, col='black') +
         labs(title='Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05', x='log(FC)', y='-log(nominalpval)') +
         theme(plot.title=element_text(size=10, vjust=1, hjust=0.5), legend.position='none') +
-        geom_point(data=dataFilter(), stat='identity', col='red', size=1) + geom_hline(yintercept=-log(0.05,10)) +
-        geom_text_repel(data=dataFilter()[1:30, ], aes(x=logFC, y=-log(P.Value,10), label=dataFilter()$symbol[1:30]), colour='forestgreen', size=2)
+        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(-log(P.Value,10), c(0,1.3,Inf))), size=1) + geom_hline(yintercept=-log(0.05,10)) +
+          scale_color_manual(name = "-log(P-value)",
+                             values = c("(0,1.3]" = "blue",
+                                        "(1.3,Inf]" = "red"),
+                             labels = c("0 <= 1.3", "> 1.3")) +
+        geom_text_repel(data=dataFilter()[1:30, ], aes(x=logFC, y=-log(P.Value,10), label=dataFilter()$symbol[1:30]), colour='forestgreen', size=2) +
+        theme_classic()
+      
+
+        #tiff(paste("FASInformatics/Figures/", input$outputfile, "_Volcano.tiff"), width = 10, height = 5, units = 'in', res = 600)
+        #plot(p)
+        #dev.off()
     })
     
+    
+
+
+
+
     clicked <- reactive({
       # We need to tell it what the x and y variables are:
       nearPoints(dataFilter(), input$plot_click, xvar = "logFC", yvar = "P.Value")
@@ -232,65 +249,7 @@ shinyServer(function(input, output, session) {
     }, rownames = T)
     
     
-    
-    # Start with placeholder img
-    image <- image_read("https://raw.githubusercontent.com/ThinkR-open/collage/master/inst/tigrou/tigrou.jpg")
-    
-    # When uploading new image
-    observeEvent(input$upload, {
-      if (length(input$upload$datapath))
-        image <<- image_convert(image_read(input$upload$datapath), "jpg")
-      info <- image_info(image)
-      updateCheckboxGroupInput(session, "effects", selected = "")
-      updateTextInput(session, "size", value = paste0(info$width, "x", info$height, "!"))
-    })
-    
-    imageLoc <- reactiveVal("https://raw.githubusercontent.com/ThinkR-open/collage/master/inst/tigrou/tigrou.jpg")
-    ## convert the img location to an img value
-    imageVal <- reactive({
-      image_convert(image_read(imageLoc()), "jpeg")
-    })
-    
-    updatedImageLoc <- reactive({
-      ## retrieve the imageVal
-      image <- imageVal()
-      
-      # # Boolean operators
-      # if("edge" %in% input$effects)
-      #   image <- image_edge(image)
-      # 
-      # if("charcoal" %in% input$effects)
-      #   image <- image_charcoal(image)
-      # 
-      # if("negate" %in% input$effects)
-      #   image <- image_negate(image)    
-      # 
-      # if("flip" %in% input$effects)
-      #   image <- image_flip(image)
-      # 
-      # if("flop" %in% input$effects)
-      #   image <- image_flop(image)
-      # 
-      # Numeric operators
-      tmpfile <- image %>%
-        image_resize(input$size) %>%
-#        image_implode(input$implode) %>%
-#        image_blur(input$blur, input$blur) %>%
-#        image_rotate(input$rotation) %>%
-        image_write(tempfile(fileext='jpg'), format = 'jpg')
-      
-      ## return only the tmp file location
-      tmpfile
-    })
-    
-    output$downloadImage <- downloadHandler(
-      filename = "Modified_image.jpeg",
-      contentType = "image/jpeg",
-      content = function(file) {
-        ## copy the file from the updated image location to the final download location
-        file.copy(updatedImageLoc(), file)
-      }
-    ) 
+
 
 })
 
