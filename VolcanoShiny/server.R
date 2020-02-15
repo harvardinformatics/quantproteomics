@@ -204,6 +204,7 @@ shinyServer(function(input, output, session) {
       tt.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
       tt.df$symbol <- unlist(mget(rownames(tt.df), uniprotmir5a62sym, ifnotfound=rownames(tt.df)))
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
+      tt.df$logPval <- -log(tt.df$P.value, 10)
       write.table(tt.df, file=paste("FASInformatics/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
       
       
@@ -216,15 +217,15 @@ shinyServer(function(input, output, session) {
     
     output$volcanoPlot <- renderPlot({
         
-        ggplot(dataFilter(),aes(x=logFC,y=-log(P.Value,10))) + geom_point(size=2, alpha=1, col='black') +
+        ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title='Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05', x='log(FC)', y='-log(nominalpval)') +
         theme(plot.title=element_text(size=10, vjust=1, hjust=0.5), legend.position='none') +
-        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(-log(P.Value,10), c(0,1.3,Inf))), size=1) + geom_hline(yintercept=-log(0.05,10)) +
+        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logPval, c(0,1.3,Inf))), size=1) + geom_hline(yintercept=-log(0.05,10)) +
           scale_color_manual(name = "-log(P-value)",
                              values = c("(0,1.3]" = "blue",
                                         "(1.3,Inf]" = "red"),
-                             labels = c("0 <= 1.3", "> 1.3")) +
-        geom_text_repel(data=dataFilter()[1:30, ], aes(x=logFC, y=-log(P.Value,10), label=dataFilter()$symbol[1:30]), colour='forestgreen', size=2) +
+                             labels = c("insignificant", "significant")) +
+        geom_text_repel(data=dataFilter()[1:30, ], aes(x=logFC, y=logPval, label=dataFilter()$symbol[1:30]), colour='forestgreen', size=2) +
         theme_classic()
       
 
@@ -240,7 +241,7 @@ shinyServer(function(input, output, session) {
 
     clicked <- reactive({
       # We need to tell it what the x and y variables are:
-      nearPoints(dataFilter(), input$plot_click, xvar = "logFC", yvar = "P.Value")
+      nearPoints(dataFilter(), input$plot_click, xvar = "logFC", yvar = "logPval")
     })
     
     #output those points into a table
