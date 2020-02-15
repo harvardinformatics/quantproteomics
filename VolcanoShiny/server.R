@@ -173,7 +173,7 @@ shinyServer(function(input, output, session) {
       # NORMALIZATION check with boxplot
       #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
-      tiff(paste("FASInformatics/Figures/", input$outputfile, "_NormalizationBox.tiff"), width = 4, height = 4, units = 'in', res=600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, "_NormalizationBox.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
       dev.off()
       
@@ -184,7 +184,7 @@ shinyServer(function(input, output, session) {
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
-      tiff(paste("FASInformatics/Figures/", input$outputfile, "_PCA.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, "_PCA.tiff"), width = 4, height = 4, units = 'in', res = 600)
       
       plot(p)
       dev.off()
@@ -204,8 +204,8 @@ shinyServer(function(input, output, session) {
       tt.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
       tt.df$symbol <- unlist(mget(rownames(tt.df), uniprotmir5a62sym, ifnotfound=rownames(tt.df)))
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
-      tt.df$logPval <- -log(tt.df$P.value, 10)
-      write.table(tt.df, file=paste("FASInformatics/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
+      tt.df$logPval <- -log10(tt.df[,c(2)])
+      write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
       
       
         tt.df
