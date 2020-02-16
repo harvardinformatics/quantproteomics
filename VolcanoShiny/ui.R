@@ -170,7 +170,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     titlePanel("Volcano Plot"),
     plotOutput('volcanoPlot',click='plot_click'),
     sliderInput('fcCut', label="log(FC) cutoff",min=-2,max=2,value=c(-2,-2), step=0.1, width="600px"),
-
+    actionButton('downloadPlot', 'Download Plot'),
     #here the table for the clicked points:
     tableOutput('clickedPoints')
   )

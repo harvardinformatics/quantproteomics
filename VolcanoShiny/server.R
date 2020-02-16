@@ -227,17 +227,32 @@ shinyServer(function(input, output, session) {
                              labels = c("insignificant", "significant")) +
         geom_text_repel(data=dataFilter()[1:30, ], aes(x=logFC, y=logPval, label=dataFilter()$symbol[1:30]), colour='forestgreen', size=2) +
         theme_classic()
-      
+        
 
-        #tiff(paste("FASInformatics/Figures/", input$outputfile, "_Volcano.tiff"), width = 10, height = 5, units = 'in', res = 600)
-        #plot(p)
-        #dev.off()
     })
     
+    plotOutput <- reactive({
+      
+      ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
+        labs(title='Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05', x='log(FC)', y='-log(nominalpval)') +
+        theme(plot.title=element_text(size=10, vjust=1, hjust=0.5), legend.position='none') +
+        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logPval, c(0,1.3,Inf))), size=1) + geom_hline(yintercept=-log(0.05,10)) +
+        scale_color_manual(name = "-log(P-value)",
+                           values = c("(0,1.3]" = "blue",
+                                      "(1.3,Inf]" = "red"),
+                           labels = c("insignificant", "significant")) +
+        geom_text_repel(data=dataFilter()[1:30, ], aes(x=logFC, y=logPval, label=dataFilter()$symbol[1:30]), colour='forestgreen', size=2) +
+        theme_classic()
+      
+      
+    })
+
+
+    observeEvent(input$downloadPlot, {
+        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Volcano.png'),plotOutput())
+      })
     
-
-
-
+    
 
     clicked <- reactive({
       # We need to tell it what the x and y variables are:
