@@ -180,6 +180,30 @@ shinyServer(function(input, output, session) {
       pd <- phenoData(resmir5a6vsn.mss)$TreatmentGroup
       names(pd) <- sampleNames(resmir5a6vsn.mss)
       
+      plotPCA_sc_v2 <- function(m, pdat, component, title='') { # select components
+        ## component: either 1 (comp1vscomp2) or 2 (comp2vscomp3)
+        pca <- prcomp(m, scale=FALSE)
+        df <- as.data.frame(pca$rotation[, 1:4])
+        df <- namerows(df, col.name='Samples')
+        
+        spl <- df$Samples
+        cl <- pdat[match(spl, names(pdat))]
+        spl <- ifelse(cl==0, input$pcacontrol, input$pcatreatment)
+        df$Samples <- spl
+        
+        if (component=='1') { 
+          p <- ggplot(df, aes(PC1, PC2, colour=Samples)) + geom_point(size=2)
+        } else if (component=='2') {
+          p <- ggplot(df, aes(PC2, PC3, colour=Samples)) + geom_point(size=2)
+          #p <- ggplot(df, aes(PC3, PC4, colour=Samples)) + geom_point(size=2)
+        }
+        
+        p <- p + theme(legend.position='right', legend.title=element_blank())
+        p <- p + labs(title=title)
+        
+        return(p)
+      }
+      
       #change file name
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
@@ -234,7 +258,7 @@ shinyServer(function(input, output, session) {
     plotOutput <- reactive({
       
       ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
-        labs(title='Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05', x='log(FC)', y='-log(nominalpval)') +
+        labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme(plot.title=element_text(size=10, vjust=1, hjust=0.5), legend.position='none') +
         geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logPval, c(0,1.3,Inf))), size=1) + geom_hline(yintercept=-log(0.05,10)) +
         scale_color_manual(name = "-log(P-value)",

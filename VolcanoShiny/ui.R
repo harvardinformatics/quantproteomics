@@ -165,6 +165,11 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     choiceValues = list(
       '0','1','2','3'
     )),
+    textInput('plottitle', 'Plot Title', value = 'Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05'),
+    textInput('xaxis', 'Plot X-axis', value = 'log(FC)'),
+    textInput('yaxis', 'Plot Y-axis', value = '-log(nominalpval)'),
+    textInput('pcacontrol', 'PCA Control', value = 'Control'),
+    textInput('pcatreatment', 'PCA Treatment', value = 'Treatment'),
     textInput('outputfile', 'Output File Name', value = 'Control_vs_Treatment'),
     actionButton('buttonId', 'run script'),
     titlePanel("Volcano Plot"),
