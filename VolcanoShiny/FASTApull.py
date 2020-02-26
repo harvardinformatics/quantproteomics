@@ -21,8 +21,7 @@ class ChannelFillApp(tk.Tk):
         self.button2.pack()
         self.entry1.pack()
         self.entry2.pack()
-        self.entry3.pack()
-
+        
     def on_button(self):
     	global FASTAfile
     	global CSVfile

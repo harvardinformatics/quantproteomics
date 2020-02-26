@@ -49,8 +49,12 @@ shinyServer(function(input, output, session) {
       
       
       # annotation
+<<<<<<< HEAD
       #annotmir5a6.df <- xmir5a6.df[, c(as.integer(input$peptideCol), as.integer(input$accessionCol))]
       annotmir5a6.df <- xmir5a6.df[, c(as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("Master.Protein.Accessions", colnames(xmir5a6.df))))]
+=======
+      annotmir5a6.df <- xmir5a6.df[, c(as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("Protein.Accessions", colnames(xmir5a6.df))))]
+>>>>>>> e6c8348578a7926818465ed622e1548712087374
       colnames(annotmir5a6.df) <- c('Pept', 'Acc')
       annotmir5a6.df$Acc <- as.character(sapply(annotmir5a6.df$Acc, function(x) unlist(strsplit(x, split=';'))[1]))
       annotmir5a6.df <- annotmir5a6.df[!is.na(annotmir5a6.df$Acc), ]
@@ -85,7 +89,11 @@ shinyServer(function(input, output, session) {
       #isolinterfix, Isolation Interference [%] column
       #lessperc, is float for setting coisolation interference threshold (i.e. default 70.0)
       #mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(input$peptideCol), as.integer(input$fileIDix), as.integer(input$isolinterfix), as.numeric(input$lessperc), as.integer(input$startix), as.integer(input$endix))
+<<<<<<< HEAD
       mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("File.ID", colnames(xmir5a6.df))), isolint, as.numeric(input$lessperc), startAbundance, endAbundance)
+=======
+      mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("File.ID", colnames(xmir5a6.df))), as.integer(input$isolinterfix), as.numeric(input$lessperc), as.integer(input$startix), as.integer(input$endix))
+>>>>>>> e6c8348578a7926818465ed622e1548712087374
       
       ymir5a6.lst <- separate_PDPSM(mir5a6.df, 2)
       xmir5a6.lst <- rmAnyMissing(ymir5a6.lst)
@@ -181,7 +189,7 @@ shinyServer(function(input, output, session) {
       # NORMALIZATION check with boxplot
       #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, "_NormalizationBox.tiff"), width = 4, height = 4, units = 'in', res=600)
+      tiff(paste("/Users/alexandria/Desktop/Work/Figures/", input$outputfile, "_NormalizationBox.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
       dev.off()
       
@@ -216,7 +224,7 @@ shinyServer(function(input, output, session) {
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, "_PCA.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      tiff(paste("/Users/alexandria/Desktop/Work/Figures/", input$outputfile, "_PCA.tiff"), width = 4, height = 4, units = 'in', res = 600)
       
       plot(p)
       dev.off()
@@ -237,7 +245,7 @@ shinyServer(function(input, output, session) {
       tt.df$symbol <- unlist(mget(rownames(tt.df), uniprotmir5a62sym, ifnotfound=rownames(tt.df)))
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
       tt.df$logPval <- -log10(tt.df[,c(2)])
-      write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
+      write.table(tt.df, file=paste("/Users/alexandria/Desktop/Work/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
       
       
         tt.df
@@ -281,7 +289,7 @@ shinyServer(function(input, output, session) {
 
 
     observeEvent(input$downloadPlot, {
-        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Volcano.png'),plotOutput())
+        ggsave(paste("/Users/alexandria/Desktop/Work/Figures/", input$outputfile, '_Volcano.png'),plotOutput())
       })
     
     

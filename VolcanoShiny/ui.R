@@ -5,6 +5,10 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     fileInput('csvfile', 'Input File'),
     fileInput('uniprotout', 'Uniprot File'),
     fileInput('unitogene', 'Uniprot and Gene Name File'),
+<<<<<<< HEAD
+=======
+    textInput('isolinterfix', 'Isolation Interference Column', value = 23),
+>>>>>>> e6c8348578a7926818465ed622e1548712087374
     textInput('lessperc', 'Coisolation Interference Threshold (default 70%)', value = 70.0),
     textInput('numchannels', 'Channel X', value = 10),
     radioButtons('channel126', 'Channel 126', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
