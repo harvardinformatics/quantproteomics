@@ -49,7 +49,8 @@ shinyServer(function(input, output, session) {
       
       
       # annotation
-      annotmir5a6.df <- xmir5a6.df[, c(as.integer(input$peptideCol), as.integer(input$accessionCol))]
+      #annotmir5a6.df <- xmir5a6.df[, c(as.integer(input$peptideCol), as.integer(input$accessionCol))]
+      annotmir5a6.df <- xmir5a6.df[, c(as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("Master.Protein.Accessions", colnames(xmir5a6.df))))]
       colnames(annotmir5a6.df) <- c('Pept', 'Acc')
       annotmir5a6.df$Acc <- as.character(sapply(annotmir5a6.df$Acc, function(x) unlist(strsplit(x, split=';'))[1]))
       annotmir5a6.df <- annotmir5a6.df[!is.na(annotmir5a6.df$Acc), ]
@@ -74,11 +75,18 @@ shinyServer(function(input, output, session) {
         x <- as.character(x)
         uniprotmir5a62sym[[x[1]]] <- x[2]
       })
-      
+      endAbundance <- as.integer(grep("126$", colnames(xmir5a6.df)))+as.integer(input$numchannels)-1
+      startAbundance <- as.integer(grep("126$", colnames(xmir5a6.df)))
+      isolint <- as.integer(grep("^Isolation.Interference", colnames(xmir5a6.df)))
+      print(isolint)
+      print(startAbundance)
+      print(endAbundance)
       #CHANGE df, peptix, fileIDix, isolinterfix, lessperc, startix, endix
       #isolinterfix, Isolation Interference [%] column
       #lessperc, is float for setting coisolation interference threshold (i.e. default 70.0)
-      mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(input$peptideCol), as.integer(input$fileIDix), as.integer(input$isolinterfix), as.numeric(input$lessperc), as.integer(input$startix), as.integer(input$endix))
+      #mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(input$peptideCol), as.integer(input$fileIDix), as.integer(input$isolinterfix), as.numeric(input$lessperc), as.integer(input$startix), as.integer(input$endix))
+      mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("File.ID", colnames(xmir5a6.df))), isolint, as.numeric(input$lessperc), startAbundance, endAbundance)
+      
       ymir5a6.lst <- separate_PDPSM(mir5a6.df, 2)
       xmir5a6.lst <- rmAnyMissing(ymir5a6.lst)
       
@@ -242,7 +250,7 @@ shinyServer(function(input, output, session) {
     output$volcanoPlot <- renderPlot({
         
         ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
-        labs(title='Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05', x='log(FC)', y='-log(nominalpval)') +
+        labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme(plot.title=element_text(size=10, vjust=1, hjust=0.5), legend.position='none') +
         geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logPval, c(0,1.3,Inf))), size=1) + geom_hline(yintercept=-log(0.05,10)) +
           scale_color_manual(name = "-log(P-value)",
