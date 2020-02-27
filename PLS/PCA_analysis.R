@@ -14,9 +14,12 @@ library(MKmisc) # glog2
 
 library(gplots)
 library(devtools)
-install_github("vqv/ggbiplot")
+#install_github("vqv/ggbiplot")
 library(ggbiplot)
 library(gtools)
+
+library(rgl)
+library(pca3d)
 
 X11.options(width=5, height=5, xpos=1200, ypos=500)
 options(editor="/usr/bin/vim")
@@ -26,18 +29,17 @@ options(stringsAsFactors=FALSE)
 # LOAD DATA
 #CHANGE input file name
 
-Meta.df <- read.table("PCA_BTZ_NOT_comparison_Matched_noOutliers.csv", header=TRUE, row.names="MWRT", quote='\"', sep=',', comment.char='')
-print(Meta.df[1:2])
-meta.pca <- prcomp(Meta.df[,c(1:2)], center = TRUE, scale. = TRUE)
+Meta.df <- read.table("VSN_normalized_noOutliers_format.csv", header=TRUE,quote='\"', sep=',', comment.char='')
+print(Meta.df[1:3])
+mx <- as.matrix(Meta.df[2:27])
 
-summary(meta.pca)
-str(meta.pca)
+pca <- prcomp(mx, scale=FALSE)
+df <- as.data.frame(pca$rotation[, 1:4])
+df <- namerows(df, col.name='Samples')
+write.table(df,file="editing.csv")
+MetaEDIT.df <- read.table("editing.csv", header=TRUE,quote='\"', sep=' ', comment.char='')
 
-p <- ggbiplot(meta.pca, labels=rownames(Meta.df)) +
-  ggtitle('PCA of BTZ, NOT') +
-  theme_classic()
-
-tiff("PCA_BTZ_NOT_comparison_Matched_Labelled_PCA_noOutliers.tiff", width = 6, height = 4, units = 'in', res = 600)
-
+p <- ggplot(MetaEDIT.df, aes(PC1, PC2, colour=Samples)) + geom_point(size=2)
+tiff("PCA_nofileSep.tiff", width = 6, height = 4, units = 'in', res=600)
 plot(p)
 dev.off()

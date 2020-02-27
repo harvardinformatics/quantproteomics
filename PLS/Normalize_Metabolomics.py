@@ -53,99 +53,135 @@ def detectSparsity(dataframe):
 			if all([BTZ.count('') >= 1, BTZ.count('') <5]):
 				newBTZ=[x if x!='' else gmean(BTZnoGap) for x in BTZ]
 			elif all([BTZ.count('') >=5, BTZ.count('') < 7]):
-				np.random.seed(200)
-				k=50
-				centroids = {
-					i+1: [np.random.randint(min(BTZnoGap),max(BTZnoGap)), np.random.randint(min(BTZnoGap),max(BTZnoGap))]
-					for i in range(k)
-				}
-				print(centroids)
-				newBTZ=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in BTZ]
+				#np.random.seed(200)
+				try:
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(min(BTZnoGap),max(BTZnoGap)), np.random.randint(min(NOTnoGap),max(NOTnoGap))]
+						for i in range(k)
+					}
+					newBTZ=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in BTZ]
+				except ValueError:
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(2725302.821,12926007.57), np.random.randint(2423418.163,4006800.199)]
+						for i in range(k)
+					}
+
+					newBTZ=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in BTZ]
 			elif all([BTZ.count('') >= 7]):
 				#random sampling from the min abundance of min of each 8 channels and max abundance of the min of each 8 channels
-				np.random.seed(200)
-				k=50
-				centroids = {
-					i+1: [np.random.randint(2725302.821,12926007.57), np.random.randint(2725302.821,12926007.57)]
-					for i in range(k)
-				}
-				newBTZ=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in BTZ]
+				#np.random.seed(200)
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(2725302.821,12926007.57), np.random.randint(2423418.163,4006800.199)]
+						for i in range(k)
+					}
+					newBTZ=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in BTZ]
 			dataframe[i][1:9]=newBTZ
 
 			if all([LBH.count('') >= 1, LBH.count('') <5]):
 				newLBH=[x if x!='' else gmean(LBHnoGap) for x in LBH]
 			elif all([LBH.count('') >=5, LBH.count('') < 7]):
-				np.random.seed(200)
-				k=50
-				centroids = {
-					i+1: [np.random.randint(min(LBHnoGap),max(LBHnoGap)), np.random.randint(min(LBHnoGap),max(LBHnoGap))]
-					for i in range(k)
-				}
-				print(centroids)
-				newLBH=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in LBH]
+				#np.random.seed(200)
+				try:
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(min(LBHnoGap),max(LBHnoGap)), np.random.randint(min(NOTnoGap),max(NOTnoGap))]
+						for i in range(k)
+					}
+
+					newLBH=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in LBH]
+				except ValueError:
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(2311917.816,3892664.915), np.random.randint(2423418.163,4006800.199)]
+						for i in range(k)
+					}
+
+					newLBH=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in LBH]
+
 			elif all([LBH.count('') >= 7]):
 				#random sampling from the min abundance of min of each 8 channels and max abundance of the min of each 8 channels
-				np.random.seed(200)
-				k=50
+				#np.random.seed(200)
+				k=2000
 				centroids = {
-					i+1: [np.random.randint(2311917.816,3892664.915), np.random.randint(2311917.816,3892664.915)]
+					i+1: [np.random.randint(2311917.816,3892664.915), np.random.randint(2423418.163,4006800.199)]
 					for i in range(k)
 				}
-				newLBH=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in LBH]
+				newLBH=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in LBH]
 			dataframe[i][9:18]=newLBH
 
 			if all([LEN.count('') >= 1, LEN.count('') <5]):
 				newLEN=[x if x!='' else gmean(LENnoGap) for x in LEN]
 			elif all([LEN.count('') >=5, LEN.count('') < 8]):
-				np.random.seed(200)
-				k=50
-				centroids = {
-					i+1: [np.random.randint(min(LENnoGap),max(LENnoGap)), np.random.randint(min(LENnoGap),max(LENnoGap))]
-					for i in range(k)
-				}
-				print(centroids)
-				newLEN=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in LEN]
+				try:
+					#np.random.seed(200)
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(min(LENnoGap),max(LENnoGap)), np.random.randint(min(NOTnoGap),max(NOTnoGap))]
+						for i in range(k)
+					}
+
+					newLEN=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in LEN]
+				except ValueError:
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(2724787.73,4638657.143), np.random.randint(2423418.163,4006800.199)]
+						for i in range(k)
+					}
+					newLEN=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in LEN]
 			elif all([LEN.count('') >= 8]):
 				#random sampling from the min abundance of min of each 8 channels and max abundance of the min of each 8 channels
-				np.random.seed(200)
-				k=50
+				#np.random.seed(200)
+				k=2000
 				centroids = {
-					i+1: [np.random.randint(2724787.73,4638657.143), np.random.randint(2724787.73,4638657.143)]
+					i+1: [np.random.randint(2724787.73,4638657.143), np.random.randint(2423418.163,4006800.199)]
 					for i in range(k)
 				}
-				newLEN=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in LEN]
+				newLEN=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in LEN]
 			dataframe[i][18:28]=newLEN
 
 			if all([NOT.count('') >= 1, NOT.count('') <5]):
 				newNOT=[x if x!='' else gmean(NOTnoGap) for x in NOT]
 			elif all([NOT.count('') >=5, NOT.count('') < 8]):
-				np.random.seed(200)
-				k=50
-				centroids = {
-					i+1: [np.random.randint(min(NOTnoGap),max(NOTnoGap)), np.random.randint(min(NOTnoGap),max(NOTnoGap))]
-					for i in range(k)
-				}
-				print(centroids)
-				newNOT=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in NOT]
+				try:
+					#np.random.seed(200)
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(min(NOTnoGap),max(NOTnoGap)), np.random.randint(min(NOTnoGap),max(NOTnoGap))]
+						for i in range(k)
+					}
+
+					newNOT=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in NOT]
+				except ValueError:
+					#np.random.seed(200)
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(2423418.163,4006800.199), np.random.randint(2423418.163,4006800.199)]
+						for i in range(k)
+					}
+
+					newNOT=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in NOT]
 			elif all([NOT.count('') >= 8]):
 				#random sampling from the min abundance of min of each 8 channels and max abundance of the min of each 8 channels
-				np.random.seed(200)
-				k=50
+				#np.random.seed(200)
+				k=2000
 				centroids = {
 					i+1: [np.random.randint(2423418.163,4006800.199), np.random.randint(2423418.163,4006800.199)]
 					for i in range(k)
 				}
-				newNOT=[x if x!='' else list(centroids.values())[random.randint(0,40)][0] for x in NOT]
+				newNOT=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in NOT]
 			dataframe[i][28:]=newNOT
-			print(dataframe[i])
+	
 		except TypeError:
-			print(row)
+			print('TypeError')
 		i+=1
 
 	return dataframe
 
 def writeFile(infile, currData):
-	fn = os.path.splitext(infile)[0] + 'FilledChannels.csv'
+	fn = os.path.splitext(infile)[0] + 'FilledChannels_fixCluster.csv'
 	with open(fn, 'w') as myfile:
 	    outputFile = csv.writer(myfile)
 	    outputFile.writerow(firstRow)
