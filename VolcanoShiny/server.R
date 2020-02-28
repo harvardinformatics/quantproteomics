@@ -229,18 +229,32 @@ shinyServer(function(input, output, session) {
       fit2 <- contrasts.fit(fit, cm)
       fit2 <- eBayes(fit2)
       
-  
+      #ttUp.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
+      #ttUp.df$symbol <- unlist(mget(rownames(ttUp.df), uniprotmir5a62sym, ifnotfound=rownames(ttUp.df)))
+      #ttUp.df$FC <- ifelse(ttUp.df$logFC >= 0, inv.glog2(ttUp.df$logFC), -inv.glog2(-ttUp.df$logFC))
+      #ttUp.df$logPval <- -log10(ttUp.df[,c(2)])
+      #ttUp.df <- filter(ttUp.df, logFC  >= 0.8 & logPval >= 1.3)
+      #write.table(ttUp.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_StatsUpregulated.csv'), quote=FALSE, sep=',')
+      #rm(ttUp.df)
+      
+      #ttDown.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
+      #ttDown.df$symbol <- unlist(mget(rownames(ttDown.df), uniprotmir5a62sym, ifnotfound=rownames(ttDown.df)))
+      #ttDown.df$FC <- ifelse(ttDown.df$logFC >= 0, inv.glog2(ttDown.df$logFC), -inv.glog2(-ttDown.df$logFC))
+      #ttDown.df$logPval <- -log10(ttDown.df[,c(2)])
+      #ttDown.df <- filter(ttDown.df, logFC  >= 0.8 & logPval >= 1.3)
+      #write.table(ttDown.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_StatsDownregulated.csv'), quote=FALSE, sep=',')
+      #rm(ttDown.df)
+
       tt.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
       tt.df$symbol <- unlist(mget(rownames(tt.df), uniprotmir5a62sym, ifnotfound=rownames(tt.df)))
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
       tt.df$logPval <- -log10(tt.df[,c(2)])
+      
       write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
-      #ttUp.df <- filter(tt.df, logFC  >= 0.8 & logPval >= 1.3)
-      #ttDown.df <-filter(tt.df, logFC  <= 0.8 & logPval >= 1.3)
-      #write.table(ttUp.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_StatsUpregulated.csv'), quote=FALSE, sep=',')
-      #write.table(ttDown.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_StatsDownregulated.csv'), quote=FALSE, sep=',')
       
         tt.df
+        
+      
     })
     
     dataFilter <- reactive({
@@ -281,7 +295,7 @@ shinyServer(function(input, output, session) {
 
 
     observeEvent(input$downloadPlot, {
-        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Volcano.png'),plotOutput(), width = 6, height = 4, dpi=600)
+        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Volcano.png'),plotOutput(), width = 8, height = 4, dpi=600)
       })
     
     
