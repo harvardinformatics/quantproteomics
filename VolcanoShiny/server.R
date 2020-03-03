@@ -20,6 +20,7 @@ library(gtools)
 library(magick)
 
 library(mwshiny)
+library(dplyr)
 shinyServer(function(input, output, session) {
 
     dataFrame <- reactive({
@@ -78,7 +79,10 @@ shinyServer(function(input, output, session) {
       endAbundance <- as.integer(grep("126$", colnames(xmir5a6.df)))+as.integer(input$numchannels)-1
       startAbundance <- as.integer(grep("126$", colnames(xmir5a6.df)))
       isolint <- as.integer(grep("^Isolation.Interference", colnames(xmir5a6.df)))
-
+      outfile <- input$outputfile
+      pcaCtl <- input$pcacontrol
+      pcaTreat <- input$pcatreatment
+    
       #CHANGE df, peptix, fileIDix, isolinterfix, lessperc, startix, endix
       #isolinterfix, Isolation Interference [%] column
       #lessperc, is float for setting coisolation interference threshold (i.e. default 70.0)
@@ -178,7 +182,7 @@ shinyServer(function(input, output, session) {
       # NORMALIZATION check with boxplot
       #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, "_NormalizationBox.tiff"), width = 4, height = 4, units = 'in', res=600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
       dev.off()
       
@@ -193,7 +197,7 @@ shinyServer(function(input, output, session) {
         
         spl <- df$Samples
         cl <- pdat[match(spl, names(pdat))]
-        spl <- ifelse(cl==0, input$pcacontrol, input$pcatreatment)
+        spl <- ifelse(cl==0, pcaCtl, pcaTreat)
         df$Samples <- spl
         
         if (component=='1') { 
@@ -213,7 +217,7 @@ shinyServer(function(input, output, session) {
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, "_PCA.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
       
       plot(p)
       dev.off()
@@ -229,28 +233,28 @@ shinyServer(function(input, output, session) {
       fit2 <- contrasts.fit(fit, cm)
       fit2 <- eBayes(fit2)
       
-      #ttUp.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
-      #ttUp.df$symbol <- unlist(mget(rownames(ttUp.df), uniprotmir5a62sym, ifnotfound=rownames(ttUp.df)))
-      #ttUp.df$FC <- ifelse(ttUp.df$logFC >= 0, inv.glog2(ttUp.df$logFC), -inv.glog2(-ttUp.df$logFC))
-      #ttUp.df$logPval <- -log10(ttUp.df[,c(2)])
-      #ttUp.df <- filter(ttUp.df, logFC  >= 0.8 & logPval >= 1.3)
-      #write.table(ttUp.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_StatsUpregulated.csv'), quote=FALSE, sep=',')
-      #rm(ttUp.df)
-      
-      #ttDown.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
-      #ttDown.df$symbol <- unlist(mget(rownames(ttDown.df), uniprotmir5a62sym, ifnotfound=rownames(ttDown.df)))
-      #ttDown.df$FC <- ifelse(ttDown.df$logFC >= 0, inv.glog2(ttDown.df$logFC), -inv.glog2(-ttDown.df$logFC))
-      #ttDown.df$logPval <- -log10(ttDown.df[,c(2)])
-      #ttDown.df <- filter(ttDown.df, logFC  >= 0.8 & logPval >= 1.3)
-      #write.table(ttDown.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_StatsDownregulated.csv'), quote=FALSE, sep=',')
-      #rm(ttDown.df)
+      ttUp.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
+      ttUp.df$symbol <- unlist(mget(rownames(ttUp.df), uniprotmir5a62sym, ifnotfound=rownames(ttUp.df)))
+      ttUp.df$FC <- ifelse(ttUp.df$logFC >= 0, inv.glog2(ttUp.df$logFC), -inv.glog2(-ttUp.df$logFC))
+      ttUp.df$logPval <- -log10(ttUp.df[,c(2)])
+      ttUp.df <- ttUp.df[which(ttUp.df$logFC  >= 0.8 & ttUp.df$logPval >= 1.3),]
+      write.table(ttUp.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsUpregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      rm(ttUp.df)
+
+      ttDown.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
+      ttDown.df$symbol <- unlist(mget(rownames(ttDown.df), uniprotmir5a62sym, ifnotfound=rownames(ttDown.df)))
+      ttDown.df$FC <- ifelse(ttDown.df$logFC >= 0, inv.glog2(ttDown.df$logFC), -inv.glog2(-ttDown.df$logFC))
+      ttDown.df$logPval <- -log10(ttDown.df[,c(2)])
+      ttDown.df <- ttDown.df[which(ttDown.df$logFC  <= -0.8 & ttDown.df$logPval >= 1.3),]
+      write.table(ttDown.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsDownregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      rm(ttDown.df)
 
       tt.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
       tt.df$symbol <- unlist(mget(rownames(tt.df), uniprotmir5a62sym, ifnotfound=rownames(tt.df)))
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
       tt.df$logPval <- -log10(tt.df[,c(2)])
       
-      write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Stats.csv'), quote=FALSE, sep='\t')
+      write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsTable.csv"), quote=FALSE, sep=',', row.names = FALSE)
       
         tt.df
         
@@ -295,7 +299,7 @@ shinyServer(function(input, output, session) {
 
 
     observeEvent(input$downloadPlot, {
-        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/", input$outputfile, '_Volcano.png'),plotOutput(), width = 8, height = 4, dpi=600)
+        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=600)
       })
     
     
