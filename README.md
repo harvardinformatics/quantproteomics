@@ -6,3 +6,5 @@
 3. PLS
    - OLS and PLS model for Metabolic Single Cell data
    - Code provided for Regression, Linear, OLS/PLS, 3-way PCA plots
+4. Imputation Normalization
+   - Optimizing code to impute and normalize Proteomics data 
