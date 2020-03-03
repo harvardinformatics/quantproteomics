@@ -64,9 +64,6 @@ def detectSparsity(dataframe):
 						i+1: [np.random.randint(min(MORnoGap),max(MORnoGap)), np.random.randint(min(CTLnoGap),max(CTLnoGap))]
 						for i in range(k)
 					}
-					#print([MORnoGap,CTLnoGap])
-					#print('centroids')
-					#print(centroids)
 					newMOR=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in MOR]
 
 				except ValueError:
@@ -75,23 +72,16 @@ def detectSparsity(dataframe):
 						i+1: [np.random.randint(485.5877075,529.3711548), np.random.randint(472.7730103,558.460144)]
 						for i in range(k)
 					}
-					#print([MORnoGap,CTLnoGap])
-					#print('centroids')
-					#print(centroids)
 					newMOR=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in MOR]
 			elif MOR.count('') >= 3:
-				pass
 				#random sampling from the min abundance of min of each 8 channels and max abundance of the min of each 8 channels
-				#np.random.seed(200)
-					# k=2000
-					# centroids = {
-					# 	i+1: [np.random.randint(485.5877075,529.3711548), np.random.randint(472.7730103,558.460144)]
-					# 	for i in range(k)
-					# }
-					# #print([MORnoGap,CTLnoGap])
-					# #print('centroids')
-					# #print(centroids)
-					# newMOR=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in MOR]
+				np.random.seed(200)
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(485.5877075,529.3711548), np.random.randint(472.7730103,558.460144)]
+						for i in range(k)
+					}
+					newMOR=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in MOR]
 			dataframe[i][15:19]=newMOR
 
 			if CTL.count('') == 1:
@@ -104,9 +94,6 @@ def detectSparsity(dataframe):
 						i+1: [np.random.randint(min(MORnoGap),max(MORnoGap)), np.random.randint(min(CTLnoGap),max(CTLnoGap))]
 						for i in range(k)
 					}
-					#print([MORnoGap,CTLnoGap])
-					#print('centroids')
-					#print(centroids)
 					newCTL=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in CTL]
 				except ValueError:
 					k=2000
@@ -114,23 +101,16 @@ def detectSparsity(dataframe):
 						i+1: [np.random.randint(485.5877075,529.3711548), np.random.randint(472.7730103,558.460144)]
 						for i in range(k)
 					}
-					#print([MORnoGap,CTLnoGap])
-					#print('centroids')
-					#print(centroids)
 					newCTL=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in CTL]
 			elif CTL.count('') >= 3:
-				pass
 				#random sampling from the min abundance of min of each 8 channels and max abundance of the min of each 8 channels
-				#np.random.seed(200)
-					# k=2000
-					# centroids = {
-					# 	i+1: [np.random.randint(485.5877075,529.3711548), np.random.randint(472.7730103,558.460144)]
-					# 	for i in range(k)
-					# }
-					# #print([MORnoGap,CTLnoGap])
-					# #print('centroids')
-					# #print(centroids)
-					# newCTL=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in CTL]
+				np.random.seed(200)
+					k=2000
+					centroids = {
+						i+1: [np.random.randint(485.5877075,529.3711548), np.random.randint(472.7730103,558.460144)]
+						for i in range(k)
+					}
+					newCTL=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in CTL]
 			dataframe[i][19:23]=newCTL
 
 	
