@@ -76,8 +76,8 @@ shinyServer(function(input, output, session) {
         x <- as.character(x)
         uniprotmir5a62sym[[x[1]]] <- x[2]
       })
-      endAbundance <- as.integer(grep("126$", colnames(xmir5a6.df)))+as.integer(input$numchannels)-1
-      startAbundance <- as.integer(grep("126$", colnames(xmir5a6.df)))
+      endAbundance <- as.integer(grep(paste(input$begchannels,"$",sep=''), colnames(xmir5a6.df)))+as.integer(input$numchannels)-1
+      startAbundance <- as.integer(grep(paste(input$begchannels,"$",sep=''), colnames(xmir5a6.df)))
       isolint <- as.integer(grep("^Isolation.Interference", colnames(xmir5a6.df)))
       outfile <- input$outputfile
       pcaCtl <- input$pcacontrol
@@ -182,7 +182,7 @@ shinyServer(function(input, output, session) {
       # NORMALIZATION check with boxplot
       #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=200)
       .plot(resmir5a6vsn.mss)
       dev.off()
       
@@ -217,7 +217,7 @@ shinyServer(function(input, output, session) {
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 200)
       
       plot(p)
       dev.off()
@@ -299,7 +299,7 @@ shinyServer(function(input, output, session) {
 
 
     observeEvent(input$downloadPlot, {
-        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=600)
+        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=200)
       })
     
     
