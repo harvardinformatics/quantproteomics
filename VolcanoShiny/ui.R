@@ -2,15 +2,28 @@ library(shiny)
 library("shinythemes")
 
 shinyUI(fluidPage(theme=shinytheme("superhero"),
+    textInput('psmfilename', 'PSM Filename'),
+    textInput('replicatenum', 'Replicate Num'),
+    textInput('abundancecolumn', 'Abundance Column'),
+    radioButtons('imputationlevel', 'Level of Imputation', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
+      "High",
+      "Medium",
+      "Low"
+    ),
+    choiceValues = list(
+      '2','1','0'
+    )),
+    actionButton('runimputation', 'Impute my Missing Values!'),
     fileInput('csvfile', 'Input File'),
     fileInput('uniprotout', 'Uniprot File'),
     fileInput('unitogene', 'Uniprot and Gene Name File'),
+    textInput('protint', 'Protein of Interest', value = 'NA'),
     textInput('lessperc', 'Coisolation Interference Threshold (default 70%)', value = 70.0),
     textInput('begchannels', 'Beginning Channel', value = '126'),
     textInput('numchannels', 'Channel X', value = 10),
-    textInput('plottitle', 'Plot Title', value = 'Diff Expressed Proteins for Control vs Treatment at P Value <= 0.05'),
-    textInput('xaxis', 'Plot X-axis', value = 'log(FC)'),
-    textInput('yaxis', 'Plot Y-axis', value = '-log(nominalpval)'),
+    textInput('plottitle', 'Plot Title', value = 'Differential Expressed Proteins for Control vs Treatment at P Value <= 0.05'),
+    textInput('xaxis', 'Plot X-axis', value = 'log2(FC)'),
+    textInput('yaxis', 'Plot Y-axis', value = '-log10(nominalpval)'),
     textInput('pcacontrol', 'PCA Control', value = 'Control'),
     textInput('pcatreatment', 'PCA Treatment', value = 'Treatment'),
     radioButtons('channel126', 'Channel 126', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
@@ -19,7 +32,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel127N', 'Channel 127N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -27,7 +40,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel127C', 'Channel 127C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -35,7 +48,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel128N', 'Channel 128N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -43,7 +56,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel128C', 'Channel 128C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -51,7 +64,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel129N', 'Channel 129N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -59,7 +72,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel129C', 'Channel 129C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -67,7 +80,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel130N', 'Channel 130N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -75,7 +88,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel130C', 'Channel 130C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -83,7 +96,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel131N', 'Channel 131N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -91,7 +104,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel131C', 'Channel 131C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -99,7 +112,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel132N', 'Channel 132N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -107,7 +120,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel132C', 'Channel 132C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -115,7 +128,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel133N', 'Channel 133N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -123,7 +136,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel133C', 'Channel 133C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -131,7 +144,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel134N', 'Channel 134N', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -139,7 +152,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     radioButtons('channel134C', 'Channel 134C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
@@ -147,7 +160,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
       "NA"
     ),
     choiceValues = list(
-      '0','1','2'
+      '1','0','2'
     )),
     
     actionButton('buttonId', 'run script'),

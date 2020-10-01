@@ -55,9 +55,9 @@ plotPCA_sc_v2 <- function(m, pdat, component, title='') { # select components
     df$Samples <- spl
 
     if (component=='1') { 
-        p <- ggplot(df, aes(PC1, PC2, colour=Samples)) + geom_point(size=2)
+        p <- ggplot(df, aes(PC1, PC2, colour=Samples)) + geom_point(size=2) + scale_color_grey()
     } else if (component=='2') {
-        p <- ggplot(df, aes(PC2, PC3, colour=Samples)) + geom_point(size=2)
+        p <- ggplot(df, aes(PC2, PC3, colour=Samples)) + geom_point(size=2) + scale_color_grey()
         #p <- ggplot(df, aes(PC3, PC4, colour=Samples)) + geom_point(size=2)
     }
     
