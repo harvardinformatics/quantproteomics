@@ -135,17 +135,16 @@ def detectSparsity(dataframe):
 			if any([level == 0, level == 1]):
 				pass
 			else:
-				if variation(tnoGap, axis = 0) > 0.3:
-					k=2000
-					centroids = {
-						i+1: [np.random.randint(noiseTmin,noiseTmax), np.random.randint(noiseCmin, noiseCmax)]
-						for i in range(k)
-					}
-					#print([MORnoGap,CTLnoGap])
-					#print('centroids')
-					#print(centroids)
-					newTreatment=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in treatment]
-
+				
+				k=2000
+				centroids = {
+					i+1: [np.random.randint(noiseTmin,noiseTmax), np.random.randint(noiseCmin, noiseCmax)]
+					for i in range(k)
+				}
+				#print([MORnoGap,CTLnoGap])
+				#print('centroids')
+				#print(centroids)
+				newTreatment=[x if x!='' else list(centroids.values())[random.randint(0,50)][0] for x in treatment]
 
 
 
@@ -191,16 +190,16 @@ def detectSparsity(dataframe):
 			if any([level == 0, level == 1]):
 				pass
 			else:
-				if variation(cnoGap, axis = 0) > 0.3:
-					k=2000
-					centroids = {
-						i+1: [np.random.randint(noiseTmin,noiseTmax), np.random.randint(noiseCmin, noiseCmax)]
-						for i in range(k)
-					}
-					#print([MORnoGap,CTLnoGap])
-					#print('centroids')
-					#print(centroids)
-					newControl=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in control]
+				
+				k=2000
+				centroids = {
+					i+1: [np.random.randint(noiseTmin,noiseTmax), np.random.randint(noiseCmin, noiseCmax)]
+					for i in range(k)
+				}
+				#print([MORnoGap,CTLnoGap])
+				#print('centroids')
+				#print(centroids)
+				newControl=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in control]
 
 
 		if newControl!=[] and newTreatment!=[]:
