@@ -7,7 +7,7 @@ library(ggplot2)
 library(limma)
 
 library(ROTS)
-
+library(stringr)
 library(seqinr)
 
 library(ggrepel)
@@ -25,12 +25,15 @@ shinyServer(function(input, output, session) {
     observeEvent(input$runimputation, {
       impute.df <- read.csv(input$psmfilename, header=TRUE)
       startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
-      print(input$imputationlevel)
+     
       system(paste("python3 imputationMV.py ", input$psmfilename, " ", input$replicatenum, " ", startAbundance, " ", input$imputationlevel, wait=FALSE))
       
     })
     dataFrame <- reactive({
-
+      #X11.options(width=5, height=5, xpos=1200, ypos=500)
+      #options(editor="/usr/bin/vim")
+      #options(stringsAsFactors=FALSE)
+      
       source('functions_for_proteomics_Rcode.R')
       
       # LOAD DATA
@@ -39,7 +42,10 @@ shinyServer(function(input, output, session) {
       if (is.null(inFile))
         return(NULL)
       xmir5a6.df <- read.csv(inFile$datapath, header=TRUE)
-    
+
+      xmir5a6.df$PSMcount <- str_count(xmir5a6.df$Master.Protein.Accessions)
+      xmir5a6.df <- xmir5a6.df[!(xmir5a6.df$PSMcount=='1'),]
+
       print('printing args from R code') 
       if (!exists("args")) {
         suppressPackageStartupMessages(library("argparse"))
@@ -53,11 +59,14 @@ shinyServer(function(input, output, session) {
       
       
       # annotation
+      #annotmir5a6.df <- xmir5a6.df[, c(as.integer(input$peptideCol), as.integer(input$accessionCol))]
       annotmir5a6.df <- xmir5a6.df[, c(as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("Master.Protein.Accessions", colnames(xmir5a6.df))))]
+      #write.table(annotmir5a6.df, "annotmir5a6_matrix.csv", sep=",")
       colnames(annotmir5a6.df) <- c('Pept', 'Acc')
       annotmir5a6.df$Acc <- as.character(sapply(annotmir5a6.df$Acc, function(x) unlist(strsplit(x, split=';'))[1]))
-      
+      #annotmir5a6.df$Acc <- as.character(annotmir5a6.df$Acc)
       annotmir5a6.df <- annotmir5a6.df[!is.na(annotmir5a6.df$Acc), ]
+      #write.table(annotmir5a6.df, "annotmir5a6_matrix.csv", sep=",")
       # lookup
       pepseqmir5a62acc <- new.env(hash=TRUE)
       apply(annotmir5a6.df, 1, function(x) {
@@ -78,8 +87,23 @@ shinyServer(function(input, output, session) {
         x <- as.character(x)
         uniprotmir5a62sym[[x[1]]] <- x[2]
       })
-      endAbundance <- as.integer(grep(paste(input$begchannels,"$",sep=''), colnames(xmir5a6.df)))+as.integer(input$numchannels)-1
-      startAbundance <- as.integer(grep(paste(input$begchannels,"$",sep=''), colnames(xmir5a6.df)))
+      # cntl.v <- gsub(", ", "|", input$controlchannels)
+      # trt.v <- gsub(", ", "|", input$treatmentchannels)
+      # 
+      # matchesCntl <- unique(grep(cntl.v, 
+      #                        colnames(xmir5a6.df), value=TRUE))
+      # matchesTrt <- unique(grep(trt.v, 
+      #                            colnames(xmir5a6.df), value=TRUE))
+      # abu.m <- c(matchesCntl, matchesTrt)
+      # 
+      # abunum.m <- which(colnames(xmir5a6.df) %in% abu.m)
+      
+      matchesAb <- unique(grep('Abundance', 
+                                colnames(xmir5a6.df), value=TRUE))
+      
+      abunum.v <- which(colnames(xmir5a6.df) %in% matchesAb)
+      
+      
       isolint <- as.integer(grep("^Isolation.Interference", colnames(xmir5a6.df)))
       outfile <- input$outputfile
       pcaCtl <- input$pcacontrol
@@ -88,12 +112,15 @@ shinyServer(function(input, output, session) {
       #CHANGE df, peptix, fileIDix, isolinterfix, lessperc, startix, endix
       #isolinterfix, Isolation Interference [%] column
       #lessperc, is float for setting coisolation interference threshold (i.e. default 70.0)
-      mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("File.ID", colnames(xmir5a6.df))), isolint, as.numeric(input$lessperc), startAbundance, endAbundance)
-
+      #mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(input$peptideCol), as.integer(input$fileIDix), as.integer(input$isolinterfix), as.numeric(input$lessperc), as.integer(input$startix), as.integer(input$endix))
+      mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("File.ID", colnames(xmir5a6.df))), isolint, as.numeric(input$lessperc), abunum.v)
+      #write.table(mir5a6.df, "mir5a6_matrix.csv", sep=",")
       ymir5a6.lst <- separate_PDPSM(mir5a6.df, 2)
-
+      #write.table(ymir5a6.lst, "ymir5a6_matrix.csv", sep=",")
       xmir5a6.lst <- rmAnyMissing(ymir5a6.lst)
-  
+      
+      #xmir5a6.lst <- xmir5a6.lst[paste('F1', seq(20), sep='.')]
+      
       # add protein column
       mir5a6.lst <- lapply(xmir5a6.lst, function(df) {
         rownames(df) <- make.unique(df$PepSeq, sep=';')    
@@ -105,16 +132,31 @@ shinyServer(function(input, output, session) {
         df <- df[o, ]
         return(df)
       })
-
+      
       mir5a6.lst <- lapply(mir5a6.lst, function(df) {
         colnames(df)  <- sub('F.*_', 'F_', colnames(df))
+       
         return(df)
       })
-
+      #write.table(xresmir5a6.df, "xresmir5a6_shinyapp_matrix.csv", sep=",")
       xresmir5a6.df <- do.call(rbind, mir5a6.lst)
 
+      #count(xresmir5a6.df, vars = "id")
+      #protein number decreases here
+      #write.table(xresmir5a6.df, "xresmir5a6_shinyapp_matrix.csv", sep=",")
       resmir5a6.df <- aggregate(xresmir5a6.df[-1], xresmir5a6.df[1], sum) # aggregating! maybe not?
-
+      if (input$protnorm != 'NA'){
+        xx<-ncol(resmir5a6.df)
+        prot_matrix <- resmir5a6.df[, 2:xx]
+        norm_prot <- subset(resmir5a6.df, resmir5a6.df$Prot == input$protnorm)
+       
+        np <- norm_prot[2:xx]
+        resmir5a6.df[, 2:xx] <- mapply('/', prot_matrix, np)
+        
+        
+      }
+      
+      #write.table(resmir5a6.df, "resmir5a6_shinyapp_matrix.csv", sep=",")
       # MAKE MSnbase OBJECT
       prepBlkAnnot <- function(df, suff) {
         adf <- df
@@ -174,16 +216,23 @@ shinyServer(function(input, output, session) {
       makeBlkMSS <- function(lst, suff) {
         pd <- read.csv(paste('pData_', suff, '.txt', sep=''))
         mss <- MSnSet(lst[[1]], lst[[2]], pd)
+        #mss <- mss[, grep('126|127', sampleNames(mss), invert=TRUE)]
         
         return(mss)
       }
       resmir5a6.lst <- prepBlkAnnot(resmir5a6.df, 'mir5a6')
       resmir5a6.mss <- makeBlkMSS(resmir5a6.lst, 'mir5a6')
-      # NORMALIZATION check with boxplot
+      transpose.r <- as.data.frame(t(resmir5a6.mss))
+      #
+      
+      write.table(transpose.r, "/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/RawMS_ProteinMatrix.csv", sep=",")
      
+      # NORMALIZATION check with boxplot
+      #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
-
-      tiff(paste("Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
+      #resmir5a6vsn.mss <- resmir5a6.mss
+      write.table(resmir5a6vsn.mss, "resmirvsn_shinyapp_matrix.csv", sep=",")
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
       dev.off()
       
@@ -206,7 +255,7 @@ shinyServer(function(input, output, session) {
           p <- ggplot(df, aes(PC1, PC2)) + geom_point(shape=21, size = 2, stroke=1, color="black", aes(fill=Samples)) + scale_fill_manual(values=c("white", "black"))
         } else if (component=='2') {
           p <- ggplot(df, aes(PC2, PC3, colour=Samples)) + geom_point(size=2) 
-          
+          #p <- ggplot(df, aes(PC3, PC4, colour=Samples)) + geom_point(size=2)
         }
         
         p <- p + theme(legend.position='right', legend.title=element_blank())
@@ -219,29 +268,36 @@ shinyServer(function(input, output, session) {
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
-      tiff(paste("Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
       
       plot(p)
       dev.off()
       
       
       group <- factor(phenoData(resmir5a6vsn.mss)$TreatmentGroup)
-      
+      #write.table(group, "group_shinyapp_matrix.csv", sep=",")
       design <- model.matrix(~0+group)
       colnames(design) <- c('Ctrl', 'Transgn')
-
+      #write.table(design, "design_shinyapp_matrix.csv", sep=",")
       fit <- lmFit(e, design)
+      #write.table(e, "e_shinyapp_matrix.csv", sep=",")
+      #write.table(fit, "fit_shinyapp_matrix.csv", sep=",")
       cm <- makeContrasts(Ctrl-Transgn, levels=design)
       
       fit2 <- contrasts.fit(fit, cm)
+      #write.table(fit2, "fit2_shinyapp_matrix.csv", sep=",")
       fit2 <- eBayes(fit2)
-
+      #write.table(fit2, "fit2ebayes_shinyapp_matrix.csv", sep=",")
+      
+      
+      
       ttUp.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
+      #write.table(ttUp.df, "up_fit2ebayes_shinyapp_matrix.csv", sep=",")
       ttUp.df$symbol <- unlist(mget(rownames(ttUp.df), uniprotmir5a62sym, ifnotfound=rownames(ttUp.df)))
       ttUp.df$FC <- ifelse(ttUp.df$logFC >= 0, inv.glog2(ttUp.df$logFC), -inv.glog2(-ttUp.df$logFC))
       ttUp.df$logPval <- -log10(ttUp.df[,c(2)])
       ttUp.df <- ttUp.df[which(ttUp.df$logFC  >= 0.58 & ttUp.df$logPval >= 1.3),]
-      write.table(ttUp.df, file=paste("Figures/StatsUpregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      write.table(ttUp.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsUpregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
       rm(ttUp.df)
 
       ttDown.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
@@ -249,7 +305,7 @@ shinyServer(function(input, output, session) {
       ttDown.df$FC <- ifelse(ttDown.df$logFC >= 0, inv.glog2(ttDown.df$logFC), -inv.glog2(-ttDown.df$logFC))
       ttDown.df$logPval <- -log10(ttDown.df[,c(2)])
       ttDown.df <- ttDown.df[which(ttDown.df$logFC  <= -0.58 & ttDown.df$logPval >= 1.3),]
-      write.table(ttDown.df, file=paste("Figures/StatsDownregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      write.table(ttDown.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsDownregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
       rm(ttDown.df)
 
       tt.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
@@ -257,7 +313,7 @@ shinyServer(function(input, output, session) {
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
       tt.df$logPval <- -log10(tt.df[,c(2)])
       
-      write.table(tt.df, file=paste("Figures/StatsTable.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsTable.csv"), quote=FALSE, sep=',', row.names = FALSE)
       
         tt.df
         
@@ -269,6 +325,7 @@ shinyServer(function(input, output, session) {
     })
     
     output$volcanoPlot <- renderPlot({
+        
         highlight_df <- dataFilter() %>% 
           filter(symbol==input$protint)
         highlight_df_down <- dataFilter() %>% 
@@ -294,9 +351,10 @@ shinyServer(function(input, output, session) {
     })
     
     plotOutput <- reactive({
-      print(input$protint)
+      
+      
       highlight_df <- dataFilter() %>% 
-        filter (symbol==input$protint)
+        filter(symbol==input$protint)
       highlight_df_down <- dataFilter() %>% 
         filter(logFC<=-0.58)
       highlight_df_up <- dataFilter() %>% 
@@ -321,7 +379,7 @@ shinyServer(function(input, output, session) {
 
 
     observeEvent(input$downloadPlot, {
-        ggsave(paste("Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=600)
+        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=600)
       })
     
     

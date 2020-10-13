@@ -67,7 +67,7 @@ plotPCA_sc_v2 <- function(m, pdat, component, title='') { # select components
     return(p)
 }
 
-prepareData_TS_PDPSM <- function(df, peptix, fileIDix, isolinterfix, lessperc, startix, endix) { # TS: Targeted and SCOPED
+prepareData_TS_PDPSM <- function(df, peptix, fileIDix, isolinterfix, lessperc, abu) { # TS: Targeted and SCOPED
     # lessperc: float for setting coisolation interference threshold
     filterIsolationInterference <- function(adf, ix, perc) {
         # D040219 - remove rows with missing interference percentage
@@ -110,9 +110,9 @@ prepareData_TS_PDPSM <- function(df, peptix, fileIDix, isolinterfix, lessperc, s
 
     peptix <- as.integer(peptix)
     fileIDix <- as.integer(fileIDix)
-    startix <- as.integer(startix)
-    endix <- as.integer(endix)
-    df <- df[, c(peptix, fileIDix, startix:endix)]    
+    #startix <- as.integer(startix)
+    #endix <- as.integer(endix)
+    df <- df[, c(peptix, fileIDix, abu)]
     
     # CAREFUL - this should be moved into the argument list!
     #df <- filterCarrierEmptyChannels(df, '126', '127')
