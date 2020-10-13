@@ -225,14 +225,14 @@ shinyServer(function(input, output, session) {
       transpose.r <- as.data.frame(t(resmir5a6.mss))
       #
       
-      write.table(transpose.r, "/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/RawMS_ProteinMatrix.csv", sep=",")
+      write.table(transpose.r, "/Figures/RawMS_ProteinMatrix.csv", sep=",")
      
       # NORMALIZATION check with boxplot
       #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
       #resmir5a6vsn.mss <- resmir5a6.mss
       write.table(resmir5a6vsn.mss, "resmirvsn_shinyapp_matrix.csv", sep=",")
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
+      tiff(paste("/Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
       dev.off()
       
@@ -268,7 +268,7 @@ shinyServer(function(input, output, session) {
       e <- exprs(resmir5a6vsn.mss)
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
-      tiff(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      tiff(paste("/Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
       
       plot(p)
       dev.off()
@@ -297,7 +297,7 @@ shinyServer(function(input, output, session) {
       ttUp.df$FC <- ifelse(ttUp.df$logFC >= 0, inv.glog2(ttUp.df$logFC), -inv.glog2(-ttUp.df$logFC))
       ttUp.df$logPval <- -log10(ttUp.df[,c(2)])
       ttUp.df <- ttUp.df[which(ttUp.df$logFC  >= 0.58 & ttUp.df$logPval >= 1.3),]
-      write.table(ttUp.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsUpregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      write.table(ttUp.df, file=paste("/Figures/StatsUpregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
       rm(ttUp.df)
 
       ttDown.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
@@ -305,7 +305,7 @@ shinyServer(function(input, output, session) {
       ttDown.df$FC <- ifelse(ttDown.df$logFC >= 0, inv.glog2(ttDown.df$logFC), -inv.glog2(-ttDown.df$logFC))
       ttDown.df$logPval <- -log10(ttDown.df[,c(2)])
       ttDown.df <- ttDown.df[which(ttDown.df$logFC  <= -0.58 & ttDown.df$logPval >= 1.3),]
-      write.table(ttDown.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsDownregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      write.table(ttDown.df, file=paste("/Figures/StatsDownregulated.csv"), quote=FALSE, sep=',', row.names = FALSE)
       rm(ttDown.df)
 
       tt.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
@@ -313,7 +313,7 @@ shinyServer(function(input, output, session) {
       tt.df$FC <- ifelse(tt.df$logFC >= 0, inv.glog2(tt.df$logFC), -inv.glog2(-tt.df$logFC))
       tt.df$logPval <- -log10(tt.df[,c(2)])
       
-      write.table(tt.df, file=paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/StatsTable.csv"), quote=FALSE, sep=',', row.names = FALSE)
+      write.table(tt.df, file=paste("/Figures/StatsTable.csv"), quote=FALSE, sep=',', row.names = FALSE)
       
         tt.df
         
@@ -379,7 +379,7 @@ shinyServer(function(input, output, session) {
 
 
     observeEvent(input$downloadPlot, {
-        ggsave(paste("/Users/ald533/Desktop/ProductionAndInformatics/FASInformatics/Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=600)
+        ggsave(paste("/Figures/VolcanoPlot.png"),plotOutput(), width = 8, height = 4, dpi=600)
       })
     
     
