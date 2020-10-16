@@ -19,7 +19,7 @@ from collections import defaultdict
 
 
 
-print(sys.argv[0:])
+
 begCol=int(sys.argv[3])
 midCol=int(int(sys.argv[3])+(int(sys.argv[2])))
 endCol=int(sys.argv[3])+int(sys.argv[2])*2
@@ -211,7 +211,7 @@ def detectSparsity(dataframe):
 
 def writeFile(infile, currData):
 	fn = os.path.splitext(infile)[0] + '_Imputed.csv'
-	with open(fn, 'w') as myfile:
+	with open(fn, 'w', newline="") as myfile:
 	    outputFile = csv.writer(myfile)
 	    outputFile.writerow(firstRow)
 	    for site in currData:
