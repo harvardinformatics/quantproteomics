@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
       impute.df <- read.csv(input$psmfilename, header=TRUE)
       startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
      
-      system(paste("python3 imputationMV.py ", input$psmfilename, " ", input$replicatenum, " ", startAbundance, " ", input$imputationlevel, wait=FALSE))
+      system(paste("python3 imputationMV.py ", input$psmfilename, " ", input$replicatenum1, " ", startAbundance, " ", input$imputationlevel, " ", input$replicatenum2, wait=FALSE))
       
     })
     observeEvent(input$runPDfilter, {

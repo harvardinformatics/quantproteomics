@@ -22,8 +22,9 @@ from collections import defaultdict
 
 begCol=int(sys.argv[3])
 midCol=int(int(sys.argv[3])+(int(sys.argv[2])))
-endCol=int(sys.argv[3])+int(sys.argv[2])*2
+endCol=midCol+int(sys.argv[5])
 reps=int(sys.argv[2])
+reps2=int(sys.argv[5])
 
 level=int(sys.argv[4])
 
@@ -75,7 +76,7 @@ def removeBlankChannels(dfs):
 	newdf=[]
 	for row in dfs:
 		#Change
-		if row[begCol:endCol].count('')!=reps*2:
+		if row[begCol:endCol].count('')!=reps+reps2:
 			newdf.append(row)
 	return newdf
 
@@ -148,9 +149,9 @@ def detectSparsity(dataframe):
 
 
 
-		if control.count('') < reps-2:
+		if control.count('') < reps2-2:
 			newControl=[x if x!='' else gmean(cnoGap) for x in control]
-		elif control.count('') < reps-1:
+		elif control.count('') < reps2-1:
 			try:
 				k=2000
 				centroids = {
@@ -186,7 +187,7 @@ def detectSparsity(dataframe):
 					#print(centroids)
 					newControl=[x if x!='' else list(centroids.values())[random.randint(0,50)][1] for x in control]
 
-		elif control.count('') <= reps:
+		elif control.count('') <= reps2:
 			if any([level == 0, level == 1]):
 				pass
 			else:

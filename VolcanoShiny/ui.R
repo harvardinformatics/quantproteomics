@@ -3,7 +3,8 @@ library("shinythemes")
 
 shinyUI(fluidPage(theme=shinytheme("superhero"),
     textInput('psmfilename', 'PSM Filename'),
-    textInput('replicatenum', 'Replicate Num'),
+    textInput('replicatenum1', 'Replicate Number of Sample 1'),
+    textInput('replicatenum2', 'Replicate Number of Sample 2'),
     textInput('abundancecolumn', 'Abundance Column'),
     radioButtons('imputationlevel', 'Level of Imputation', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "High",
