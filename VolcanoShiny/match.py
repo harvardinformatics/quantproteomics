@@ -55,7 +55,7 @@ def writeFile(infile, currData):
 	fn = os.path.splitext(infile)[0] + '_PDfilters.csv'
 	with open(fn, 'w', newline="") as myfile:
 	    outputFile = csv.writer(myfile)
-	    #outputFile.writerow(firstRow)
+	    outputFile.writerow(firstRow)
 	    for site in currData:
 	        outputFile.writerow(site)
 
