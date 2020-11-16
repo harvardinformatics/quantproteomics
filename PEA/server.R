@@ -213,9 +213,7 @@ shinyServer(function(input, output, session) {
             x <- paste(x, as.integer(input$channel133C), sep=',')
           } else if (grepl('134N', x)) {
             x <- paste(x, as.integer(input$channel134N), sep=',')
-          } else if (grepl('134C', x)) {
-            x <- paste(x, as.integer(input$channel134C), sep=',')
-          } 
+          }
         })
         write.table(bm.cnames, file=paste('pData_', suff, '.txt', sep=''), col.names=paste('TreatmentGroup', sep=','),
                     row.names=FALSE, quote=FALSE)
@@ -343,9 +341,9 @@ shinyServer(function(input, output, session) {
         highlight_df3 <- dataFilter() %>% 
           filter(symbol==input$protint3)
         highlight_df_down <- dataFilter() %>% 
-          filter(logFC<=-1.5)
+          filter(logFC<=-0.58)
         highlight_df_up <- dataFilter() %>% 
-          filter(logFC>=1.5)
+          filter(logFC>=0.58)
         ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme_update(plot.title=element_text(hjust=0.5), legend.position='none') +
@@ -375,9 +373,9 @@ shinyServer(function(input, output, session) {
       highlight_df3 <- dataFilter() %>% 
         filter(symbol==input$protint3)
       highlight_df_down <- dataFilter() %>% 
-        filter(logFC<=-1.5)
+        filter(logFC<=-0.58)
       highlight_df_up <- dataFilter() %>% 
-        filter(logFC>=1.5)
+        filter(logFC>=0.58)
       ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme_update(plot.title=element_text(hjust=0.5), legend.position='none') +

@@ -159,14 +159,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     choiceValues = list(
       '1','0','2'
     )),
-    radioButtons('channel134C', 'Channel 134C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
-      "Control",
-      "Treatment",
-      "NA"
-    ),
-    choiceValues = list(
-      '1','0','2'
-    )),
+
     
     actionButton('buttonId', 'run script'),
     titlePanel("Volcano Plot"),
