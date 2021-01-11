@@ -5,6 +5,7 @@ library(reshape)
 library(lattice)
 library(ggplot2)
 library(limma)
+library(lattice)
 library(ROTS)
 library(stringr)
 library(seqinr)
@@ -15,7 +16,9 @@ library(gtools)
 library(magick)
 library(mwshiny)
 library(dplyr)
+library(pheatmap)
 shinyServer(function(input, output, session) {
+    options(warn=-1)
     observeEvent(input$runimputation, {
       impute.df <- read.csv(input$psmfilename, header=TRUE)
       startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
@@ -176,11 +179,35 @@ shinyServer(function(input, output, session) {
       resmir5a6.lst <- prepBlkAnnot(resmir5a6.df, 'mir5a6')
       resmir5a6.mss <- makeBlkMSS(resmir5a6.lst, 'mir5a6')
       transpose.r <- as.data.frame(t(resmir5a6.mss))
-
+      transpose.r <- select(transpose.r,-matches("ID"))
+      
       write.table(transpose.r, "Figures/RawMS_ProteinMatrix.csv", sep=",", row.names=FALSE)
-     
+      
+      
+      
       # NORMALIZATION check with boxplot
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
+      
+      transpose.norm <- as.data.frame(t(resmir5a6vsn.mss))
+
+      rep1 <- as.numeric(input$replicatenum1)
+      rep2 <- as.numeric(input$replicatenum2)
+      endIndex2 <- rep1+rep2
+      endIndex1 <- rep1+1
+      startIndex1 <- rep1+2
+      transpose.norm['A']=0.5*(log(rowMeans(transpose.norm[1:endIndex1]),2)+log(rowMeans(transpose.norm[startIndex1:endIndex2]),2))
+      transpose.norm['M']=log(rowMeans(transpose.norm[1:endIndex1]),2)-log(rowMeans(transpose.norm[startIndex1:endIndex2]),2)
+      
+      ggma2 <- ggplot(aes(x = A, y = M), data = transpose.norm) + geom_point(shape = 19) 
+
+      tiff(paste("Figures/MAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      
+      plot(ggma2)
+      dev.off()
+      
+      
+      
+      
       write.table(resmir5a6vsn.mss, "resmirvsn_shinyapp_matrix.csv", sep=",")
       tiff(paste("Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
@@ -305,6 +332,7 @@ shinyServer(function(input, output, session) {
         filter(logFC<=-0.58)
       highlight_df_up <- dataFilter() %>% 
         filter(logFC>=0.58)
+      
       ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme_update(plot.title=element_text(hjust=0.5), legend.position='none') +

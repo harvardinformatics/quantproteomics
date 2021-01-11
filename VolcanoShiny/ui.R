@@ -6,14 +6,6 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     textInput('replicatenum1', 'Replicate Number of Sample 1'),
     textInput('replicatenum2', 'Replicate Number of Sample 2'),
     textInput('abundancecolumn', 'Abundance Column'),
-    radioButtons('imputationlevel', 'Level of Imputation', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
-      "High",
-      "Medium",
-      "Low"
-    ),
-    choiceValues = list(
-      '2','1','0'
-    )),
     actionButton('runimputation', 'Impute my Missing Values!'),
     textInput('PSMfile', 'PSM Imputed File'),
     textInput('Protfile', 'PD Protein File'),
