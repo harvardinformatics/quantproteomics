@@ -5,41 +5,57 @@ library(reshape)
 library(lattice)
 library(ggplot2)
 library(limma)
-library(lattice)
+
 library(ROTS)
 library(stringr)
 library(seqinr)
+
 library(ggrepel)
-library(MKmisc)
+library(MKmisc) # glog2
+
 library(gplots)
+
+
 library(gtools)
 library(magick)
+
 library(mwshiny)
 library(dplyr)
-library(pheatmap)
 shinyServer(function(input, output, session) {
-    options(warn=-1)
     observeEvent(input$runimputation, {
       impute.df <- read.csv(input$psmfilename, header=TRUE)
       startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
-      system(paste("python3 imputationMV.py ", input$psmfilename, " ", input$replicatenum1, " ", startAbundance, " ", input$imputationlevel, " ", input$replicatenum2, wait=FALSE))
+     
+      system(paste("python3 missForest_model.py ", input$psmfilename, " ", input$replicatenum1, " ", startAbundance, " ", input$replicatenum2, wait=FALSE))
+      
     })
     observeEvent(input$runPDfilter, {
+      
       psmfile.df <- read.csv(input$PSMfile, header=TRUE)
       protfile.df <- read.csv(input$Protfile, header=TRUE)
       accPSM <- as.integer(grep("Master.Protein.Accessions", colnames(psmfile.df)))-1
       accProt <- as.integer(grep("Accession", colnames(protfile.df)))-1
+      
       system(paste("python3 match.py ", input$PSMfile, " ", input$Protfile, " ", accPSM, " ", accProt, wait=FALSE))
+      
     })
     dataFrame <- reactive({
+      #X11.options(width=5, height=5, xpos=1200, ypos=500)
+      #options(editor="/usr/bin/vim")
+      #options(stringsAsFactors=FALSE)
+      
       source('functions_for_proteomics_Rcode.R')
+      
       # LOAD DATA
+      #CHANGE input file name
       inFile<-input$csvfile
       if (is.null(inFile))
         return(NULL)
       xmir5a6.df <- read.csv(inFile$datapath, header=TRUE)
+
       xmir5a6.df$PSMcount <- str_count(xmir5a6.df$Master.Protein.Accessions)
       xmir5a6.df <- xmir5a6.df[!(xmir5a6.df$PSMcount=='1'),]
+
       print('printing args from R code') 
       if (!exists("args")) {
         suppressPackageStartupMessages(library("argparse"))
@@ -50,12 +66,18 @@ shinyServer(function(input, output, session) {
                             help="Second parameter [default %(defult)s]")
         args <- parser$parse_args()
       }
-
+      
+      
       # annotation
+      #annotmir5a6.df <- xmir5a6.df[, c(as.integer(input$peptideCol), as.integer(input$accessionCol))]
       annotmir5a6.df <- xmir5a6.df[, c(as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("Master.Protein.Accessions", colnames(xmir5a6.df))))]
+      #write.table(annotmir5a6.df, "annotmir5a6_matrix.csv", sep=",")
       colnames(annotmir5a6.df) <- c('Pept', 'Acc')
       annotmir5a6.df$Acc <- as.character(sapply(annotmir5a6.df$Acc, function(x) unlist(strsplit(x, split=';'))[1]))
+      #annotmir5a6.df$Acc <- as.character(annotmir5a6.df$Acc)
       annotmir5a6.df <- annotmir5a6.df[!is.na(annotmir5a6.df$Acc), ]
+      #write.table(annotmir5a6.df, "annotmir5a6_matrix.csv", sep=",")
+      # lookup
       pepseqmir5a62acc <- new.env(hash=TRUE)
       apply(annotmir5a6.df, 1, function(x) {
         pepseqmir5a62acc[[x[1]]] <- x[2]
@@ -75,6 +97,17 @@ shinyServer(function(input, output, session) {
         x <- as.character(x)
         uniprotmir5a62sym[[x[1]]] <- x[2]
       })
+      # cntl.v <- gsub(", ", "|", input$controlchannels)
+      # trt.v <- gsub(", ", "|", input$treatmentchannels)
+      # 
+      # matchesCntl <- unique(grep(cntl.v, 
+      #                        colnames(xmir5a6.df), value=TRUE))
+      # matchesTrt <- unique(grep(trt.v, 
+      #                            colnames(xmir5a6.df), value=TRUE))
+      # abu.m <- c(matchesCntl, matchesTrt)
+      # 
+      # abunum.m <- which(colnames(xmir5a6.df) %in% abu.m)
+      
       matchesAb <- unique(grep('Abundance', 
                                 colnames(xmir5a6.df), value=TRUE))
       
@@ -89,10 +122,15 @@ shinyServer(function(input, output, session) {
       #CHANGE df, peptix, fileIDix, isolinterfix, lessperc, startix, endix
       #isolinterfix, Isolation Interference [%] column
       #lessperc, is float for setting coisolation interference threshold (i.e. default 70.0)
+      #mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(input$peptideCol), as.integer(input$fileIDix), as.integer(input$isolinterfix), as.numeric(input$lessperc), as.integer(input$startix), as.integer(input$endix))
       mir5a6.df <- prepareData_TS_PDPSM(xmir5a6.df, as.integer(grep("Annotated.Sequence", colnames(xmir5a6.df))), as.integer(grep("File.ID", colnames(xmir5a6.df))), isolint, as.numeric(input$lessperc), abunum.v)
+      #write.table(mir5a6.df, "mir5a6_matrix.csv", sep=",")
       ymir5a6.lst <- separate_PDPSM(mir5a6.df, 2)
+      #write.table(ymir5a6.lst, "ymir5a6_matrix.csv", sep=",")
       xmir5a6.lst <- rmAnyMissing(ymir5a6.lst)
-
+      
+      #xmir5a6.lst <- xmir5a6.lst[paste('F1', seq(20), sep='.')]
+      
       # add protein column
       mir5a6.lst <- lapply(xmir5a6.lst, function(df) {
         rownames(df) <- make.unique(df$PepSeq, sep=';')    
@@ -110,21 +148,33 @@ shinyServer(function(input, output, session) {
        
         return(df)
       })
+      #write.table(xresmir5a6.df, "xresmir5a6_shinyapp_matrix.csv", sep=",")
       xresmir5a6.df <- do.call(rbind, mir5a6.lst)
+
+      #count(xresmir5a6.df, vars = "id")
+      #protein number decreases here
+      #write.table(xresmir5a6.df, "xresmir5a6_shinyapp_matrix.csv", sep=",")
       resmir5a6.df <- aggregate(xresmir5a6.df[-1], xresmir5a6.df[1], sum) # aggregating! maybe not?
       if (input$protnorm != 'NA'){
         xx<-ncol(resmir5a6.df)
         prot_matrix <- resmir5a6.df[, 2:xx]
         norm_prot <- subset(resmir5a6.df, resmir5a6.df$Prot == input$protnorm)
+       
         np <- norm_prot[2:xx]
         resmir5a6.df[, 2:xx] <- mapply('/', prot_matrix, np)
+        
+        
       }
+      
+      #write.table(resmir5a6.df, "resmir5a6_shinyapp_matrix.csv", sep=",")
       # MAKE MSnbase OBJECT
       prepBlkAnnot <- function(df, suff) {
         adf <- df
         adf <- adf[order(adf$Prot, decreasing=FALSE), ]
+        
         fdf <- data.frame(ID=adf$Prot, Acc=adf$Prot)
         rownames(fdf) <- fdf$ID
+        
         rownames(adf) <- adf$Prot
         bm <- adf[-1]
         bm[colnames(bm)] <- sapply(bm[colnames(bm)], as.numeric)
@@ -163,7 +213,9 @@ shinyServer(function(input, output, session) {
             x <- paste(x, as.integer(input$channel133C), sep=',')
           } else if (grepl('134N', x)) {
             x <- paste(x, as.integer(input$channel134N), sep=',')
-          }
+          } else if (grepl('134C', x)) {
+            x <- paste(x, as.integer(input$channel134C), sep=',')
+          } 
         })
         write.table(bm.cnames, file=paste('pData_', suff, '.txt', sep=''), col.names=paste('TreatmentGroup', sep=','),
                     row.names=FALSE, quote=FALSE)
@@ -174,40 +226,21 @@ shinyServer(function(input, output, session) {
       makeBlkMSS <- function(lst, suff) {
         pd <- read.csv(paste('pData_', suff, '.txt', sep=''))
         mss <- MSnSet(lst[[1]], lst[[2]], pd)
+        #mss <- mss[, grep('126|127', sampleNames(mss), invert=TRUE)]
+        
         return(mss)
       }
       resmir5a6.lst <- prepBlkAnnot(resmir5a6.df, 'mir5a6')
       resmir5a6.mss <- makeBlkMSS(resmir5a6.lst, 'mir5a6')
       transpose.r <- as.data.frame(t(resmir5a6.mss))
-      transpose.r <- select(transpose.r,-matches("ID"))
+      #
       
       write.table(transpose.r, "Figures/RawMS_ProteinMatrix.csv", sep=",", row.names=FALSE)
-      
-      
-      
+     
       # NORMALIZATION check with boxplot
+      #change file name
       resmir5a6vsn.mss <- normalise(resmir5a6.mss, 'vsn')
-      
-      transpose.norm <- as.data.frame(t(resmir5a6vsn.mss))
-
-      rep1 <- as.numeric(input$replicatenum1)
-      rep2 <- as.numeric(input$replicatenum2)
-      endIndex2 <- rep1+rep2
-      endIndex1 <- rep1+1
-      startIndex1 <- rep1+2
-      transpose.norm['A']=0.5*(log(rowMeans(transpose.norm[1:endIndex1]),2)+log(rowMeans(transpose.norm[startIndex1:endIndex2]),2))
-      transpose.norm['M']=log(rowMeans(transpose.norm[1:endIndex1]),2)-log(rowMeans(transpose.norm[startIndex1:endIndex2]),2)
-      
-      ggma2 <- ggplot(aes(x = A, y = M), data = transpose.norm) + geom_point(shape = 19) 
-
-      tiff(paste("Figures/MAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
-      
-      plot(ggma2)
-      dev.off()
-      
-      
-      
-      
+      #resmir5a6vsn.mss <- resmir5a6.mss
       write.table(resmir5a6vsn.mss, "resmirvsn_shinyapp_matrix.csv", sep=",")
       tiff(paste("Figures/NormalizationBoxPlot.tiff"), width = 4, height = 4, units = 'in', res=600)
       .plot(resmir5a6vsn.mss)
@@ -217,7 +250,8 @@ shinyServer(function(input, output, session) {
       names(pd) <- sampleNames(resmir5a6vsn.mss)
       
       
-      plotPCA_sc_v2 <- function(m, pdat, component, title='') {
+      plotPCA_sc_v2 <- function(m, pdat, component, title='') { # select components
+        ## component: either 1 (comp1vscomp2) or 2 (comp2vscomp3)
         pca <- prcomp(m, scale=FALSE)
         df <- as.data.frame(pca$rotation[, 1:4])
         df <- namerows(df, col.name='Samples')
@@ -231,6 +265,7 @@ shinyServer(function(input, output, session) {
           p <- ggplot(df, aes(PC1, PC2)) + geom_point(shape=21, size = 2, stroke=1, color="black", aes(fill=Samples)) + scale_fill_manual(values=c("white", "black"))
         } else if (component=='2') {
           p <- ggplot(df, aes(PC2, PC3, colour=Samples)) + geom_point(size=2) 
+          #p <- ggplot(df, aes(PC3, PC4, colour=Samples)) + geom_point(size=2)
         }
         
         p <- p + theme(legend.position='right', legend.title=element_blank())
@@ -244,19 +279,30 @@ shinyServer(function(input, output, session) {
       p <- plotPCA_sc_v2(e, pd, '1', title=paste('', '')) +
         theme_classic()
       tiff(paste("Figures/PCAplot.tiff"), width = 4, height = 4, units = 'in', res = 600)
+      
       plot(p)
       dev.off()
       
       
       group <- factor(phenoData(resmir5a6vsn.mss)$TreatmentGroup)
+      #write.table(group, "group_shinyapp_matrix.csv", sep=",")
       design <- model.matrix(~0+group)
       colnames(design) <- c('Ctrl', 'Transgn')
+      #write.table(design, "design_shinyapp_matrix.csv", sep=",")
       fit <- lmFit(e, design)
+      #write.table(e, "e_shinyapp_matrix.csv", sep=",")
+      #write.table(fit, "fit_shinyapp_matrix.csv", sep=",")
       cm <- makeContrasts(Ctrl-Transgn, levels=design)
+      
       fit2 <- contrasts.fit(fit, cm)
+      #write.table(fit2, "fit2_shinyapp_matrix.csv", sep=",")
       fit2 <- eBayes(fit2)
-
+      #write.table(fit2, "fit2ebayes_shinyapp_matrix.csv", sep=",")
+      
+      
+      
       ttUp.df <- topTable(fit2, number=Inf, sort.by ='p', p.value=1)[, c(1, 4, 5)]
+      #write.table(ttUp.df, "up_fit2ebayes_shinyapp_matrix.csv", sep=",")
       ttUp.df$symbol <- unlist(mget(rownames(ttUp.df), uniprotmir5a62sym, ifnotfound=rownames(ttUp.df)))
       ttUp.df$FC <- ifelse(ttUp.df$logFC >= 0, inv.glog2(ttUp.df$logFC), -inv.glog2(-ttUp.df$logFC))
       ttUp.df$logPval <- -log10(ttUp.df[,c(2)])
@@ -290,12 +336,8 @@ shinyServer(function(input, output, session) {
     
     output$volcanoPlot <- renderPlot({
         
-        highlight_df1 <- dataFilter() %>% 
-          filter(symbol==input$protint1)
-        highlight_df2 <- dataFilter() %>% 
-          filter(symbol==input$protint2)
-        highlight_df3 <- dataFilter() %>% 
-          filter(symbol==input$protint3)
+        highlight_df <- dataFilter() %>% 
+          filter(symbol==input$protint)
         highlight_df_down <- dataFilter() %>% 
           filter(logFC<=-0.58)
         highlight_df_up <- dataFilter() %>% 
@@ -309,9 +351,8 @@ shinyServer(function(input, output, session) {
                                         "(-0.58,0.58]" = "gray",
                                         "(0.58,5]" = "red"),
                              labels = c("decreased", "insignificant", "increased")) +
-        geom_point(data=highlight_df1, aes(x=logFC,y=logPval), color='green',size=2,alpha=1, col='black') +
-        geom_point(data=highlight_df2, aes(x=logFC,y=logPval), color='orange',size=2,alpha=1, col='black') +
-        geom_point(data=highlight_df3, aes(x=logFC,y=logPval), color='purple',size=2,alpha=1, col='black') +
+        geom_point(data=highlight_df, aes(x=logFC,y=logPval), color='green',size=2,alpha=1, col='black') +
+        #geom_text_repel(data=highlight_df, aes(x=logFC, y=logPval, label=highlight_df$symbol), colour='forestgreen', size=2) +
         geom_text_repel(data=highlight_df_down, aes(x=logFC, y=logPval, label=highlight_df_down$symbol), colour='black', size=2) +
         geom_text_repel(data=highlight_df_up, aes(x=logFC, y=logPval, label=highlight_df_up$symbol), colour='black', size=2) +
         theme_classic()
@@ -322,17 +363,12 @@ shinyServer(function(input, output, session) {
     plotOutput <- reactive({
       
       
-      highlight_df1 <- dataFilter() %>% 
-        filter(symbol==input$protint1)
-      highlight_df2 <- dataFilter() %>% 
-        filter(symbol==input$protint2)
-      highlight_df3 <- dataFilter() %>% 
-        filter(symbol==input$protint3)
+      highlight_df <- dataFilter() %>% 
+        filter(symbol==input$protint)
       highlight_df_down <- dataFilter() %>% 
         filter(logFC<=-0.58)
       highlight_df_up <- dataFilter() %>% 
         filter(logFC>=0.58)
-      
       ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme_update(plot.title=element_text(hjust=0.5), legend.position='none') +
@@ -342,9 +378,8 @@ shinyServer(function(input, output, session) {
                                       "(-0.58,0.58]" = "gray",
                                       "(0.58,5]" = "red"),
                            labels = c("decreased", "insignificant", "increased")) +
-        geom_point(data=highlight_df1, aes(x=logFC,y=logPval), color='green',size=2,alpha=1, col='black') +
-        geom_point(data=highlight_df2, aes(x=logFC,y=logPval), color='orange',size=2,alpha=1, col='black') +
-        geom_point(data=highlight_df3, aes(x=logFC,y=logPval), color='purple',size=2,alpha=1, col='black') +
+        geom_point(data=highlight_df, aes(x=logFC,y=logPval,label=symbol), color='green',size=2, alpha=1, col='black') +
+        #geom_text_repel(data=highlight_df, aes(x=logFC, y=logPval, label=highlight_df$symbol), colour='forestgreen', size=2) +
         geom_text_repel(data=highlight_df_down, aes(x=logFC, y=logPval, label=highlight_df_down$symbol), colour='black', size=2) +
         geom_text_repel(data=highlight_df_up, aes(x=logFC, y=logPval, label=highlight_df_up$symbol), colour='black', size=2) +
         theme_classic()
@@ -360,6 +395,7 @@ shinyServer(function(input, output, session) {
     
 
     clicked <- reactive({
+      # We need to tell it what the x and y variables are:
       nearPoints(dataFilter(), input$plot_click, xvar = "logFC", yvar = "logPval")
     })
     

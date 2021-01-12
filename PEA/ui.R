@@ -6,14 +6,6 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     textInput('replicatenum1', 'Replicate Number of Sample 1'),
     textInput('replicatenum2', 'Replicate Number of Sample 2'),
     textInput('abundancecolumn', 'Abundance Column'),
-    radioButtons('imputationlevel', 'Level of Imputation', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
-      "High",
-      "Medium",
-      "Low"
-    ),
-    choiceValues = list(
-      '2','1','0'
-    )),
     actionButton('runimputation', 'Impute my Missing Values!'),
     textInput('PSMfile', 'PSM Imputed File'),
     textInput('Protfile', 'PD Protein File'),
@@ -28,9 +20,7 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     textInput('yaxis', 'Plot Y-axis', value = '-log10(nominalpval)'),
     textInput('pcacontrol', 'PCA Control', value = 'Control'),
     textInput('pcatreatment', 'PCA Treatment', value = 'Treatment'),
-    textInput('protint1', 'Protein of Interest 1', value = 'NA'),
-    textInput('protint2', 'Protein of Interest 2', value = 'NA'),
-    textInput('protint3', 'Protein of Interest 3', value = 'NA'),
+    textInput('protint', 'Protein of Interest', value = 'NA'),
     radioButtons('channel126', 'Channel 126', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
       "Control",
       "Treatment",
@@ -159,12 +149,19 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
     choiceValues = list(
       '1','0','2'
     )),
-
+    radioButtons('channel134C', 'Channel 134C', inline = TRUE, choices = NULL, selected = NULL, choiceNames = list(
+      "Control",
+      "Treatment",
+      "NA"
+    ),
+    choiceValues = list(
+      '1','0','2'
+    )),
     
     actionButton('buttonId', 'run script'),
     titlePanel("Volcano Plot"),
     plotOutput('volcanoPlot',click='plot_click'),
-    sliderInput('fcCut', label="log(FC) cutoff",min=-3,max=3,value=c(-3,3), step=0.1, width="600px"),
+    sliderInput('fcCut', label="log(FC) cutoff",min=-2,max=2,value=c(-2,-2), step=0.1, width="600px"),
     actionButton('downloadPlot', 'Download Plot'),
     #here the table for the clicked points:
     tableOutput('clickedPoints')
