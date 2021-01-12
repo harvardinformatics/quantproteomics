@@ -1,0 +1,7 @@
+numpy==1.17.2
+pandas==0.24.2
+pyteomics==4.1
+scikit-learn==0.20.3
+scipy==1.2.1
+tqdm==4.31.1
+brain-isotopic-distribution==1.5.2
