@@ -27,7 +27,7 @@ endCol=midCol+int(sys.argv[4])
 reps=int(sys.argv[2])
 reps2=int(sys.argv[4])
 
-
+fileName=sys.argv[1]
 
 def readFileNAN(infile):
 	print('Your file is being processed, stay tuned!')
@@ -101,13 +101,13 @@ def writeFile(infile, currData, annotData):
 
 
 def main():
-	PSMdataNAN, PSMannot = readFileNAN('200918A_DMSAM07342_DKMIVB20-PSM.csv')
-	PSMdata, PSMannot = readFileNAN('200918A_DMSAM07342_DKMIVB20-PSM.csv')
+	PSMdataNAN, PSMannot = readFileNAN(fileName)
+	PSMdata, PSMannot = readFileNAN(fileName)
 	impMatrix = imputeMatrix(PSMdata)
 	PSMmatrix = createHashtable(createMatrix(PSMdata))
 	blankMatrix = blankPredictor(PSMdata,PSMmatrix)
 	
-	writeFile('200918A_DMSAM07342_DKMIVB20-PSM.csv',blankDecider(PSMdataNAN,blankMatrix,impMatrix), PSMannot)
+	writeFile(fileName,blankDecider(PSMdataNAN,blankMatrix,impMatrix), PSMannot)
 
 
 

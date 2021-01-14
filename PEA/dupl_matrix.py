@@ -88,10 +88,8 @@ def writeFile(infile, currData):
 	        outputFile.writerow(site)
 
 def main():
-	PSMdata = readFile('200918A_DMSAM07342_DKMIVB20-PSM_test.csv')
 	PSMmatrix = createHashtable(createMatrix(PSMdata))
-	print(blankPredictor(PSMdata,PSMmatrix))
-	#print(PSMmatrix)
+
 
 
 if __name__=="__main__":
