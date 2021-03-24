@@ -51,7 +51,7 @@ def database_read_transform(target_csv_path, decoy_csv_path):
                   'Quan Info': 'quan_info',
                   'Precursor Abundance': 'precursor_abundance',
                   'Apex RT [min]': 'apex_rt_min',
-                   'XCorr': 'xcorr'}
+                  '|Log Prob|': 'xcorr'}
 
     # either or both files can exist
     if target_csv_path and decoy_csv_path:

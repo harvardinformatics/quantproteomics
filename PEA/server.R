@@ -339,17 +339,17 @@ shinyServer(function(input, output, session) {
         highlight_df <- dataFilter() %>% 
           filter(symbol==input$protint)
         highlight_df_down <- dataFilter() %>% 
-          filter(logFC<=-0.58)
+          filter(logFC<=-1)
         highlight_df_up <- dataFilter() %>% 
-          filter(logFC>=0.58)
+          filter(logFC>=1)
         ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme_update(plot.title=element_text(hjust=0.5), legend.position='none') +
-        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logFC, c(-Inf,-0.58,0.58,5))), size=1) + geom_hline(yintercept=-log(0.05,10), linetype="3313", colour="grey") + geom_vline(xintercept=0.58, linetype="3313", colour="grey") + geom_vline(xintercept=-0.58, linetype="3313", colour="grey") +
+        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logFC, c(-Inf,-1,1,5))), size=1) + geom_hline(yintercept=-log(0.05,10), linetype="3313", colour="grey") + geom_vline(xintercept=1, linetype="3313", colour="grey") + geom_vline(xintercept=-1, linetype="3313", colour="grey") +
           scale_color_manual(name = "logFC",
-                             values = c("(-Inf,-0.58]" = "blue",
-                                        "(-0.58,0.58]" = "gray",
-                                        "(0.58,5]" = "red"),
+                             values = c("(-Inf,-1]" = "blue",
+                                        "(-1,1]" = "gray",
+                                        "(1,5]" = "red"),
                              labels = c("decreased", "insignificant", "increased")) +
         geom_point(data=highlight_df, aes(x=logFC,y=logPval), color='green',size=2,alpha=1, col='black') +
         #geom_text_repel(data=highlight_df, aes(x=logFC, y=logPval, label=highlight_df$symbol), colour='forestgreen', size=2) +
@@ -366,17 +366,17 @@ shinyServer(function(input, output, session) {
       highlight_df <- dataFilter() %>% 
         filter(symbol==input$protint)
       highlight_df_down <- dataFilter() %>% 
-        filter(logFC<=-0.58)
+        filter(logFC<=-1)
       highlight_df_up <- dataFilter() %>% 
-        filter(logFC>=0.58)
+        filter(logFC>=1)
       ggplot(dataFilter(),aes(x=logFC,y=logPval)) + geom_point(size=2, alpha=1, col='black') +
         labs(title=input$plottitle, x=input$xaxis, y=input$yaxis) +
         theme_update(plot.title=element_text(hjust=0.5), legend.position='none') +
-        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logFC, c(-Inf,-0.58,0.58,5))), size=1) + geom_hline(yintercept=-log(0.05,10), linetype="3313", colour="grey") + geom_vline(xintercept=0.58, linetype="3313", colour="grey") + geom_vline(xintercept=-0.58, linetype="3313", colour="grey") +
+        geom_point(data=dataFilter(), stat='identity', aes(colour=cut(logFC, c(-Inf,-1,1,5))), size=1) + geom_hline(yintercept=-log(0.05,10), linetype="3313", colour="grey") + geom_vline(xintercept=1, linetype="3313", colour="grey") + geom_vline(xintercept=-1, linetype="3313", colour="grey") +
         scale_color_manual(name = "logFC",
-                           values = c("(-Inf,-0.58]" = "blue",
-                                      "(-0.58,0.58]" = "gray",
-                                      "(0.58,5]" = "red"),
+                           values = c("(-Inf,-1]" = "blue",
+                                      "(-1,1]" = "gray",
+                                      "(1,5]" = "red"),
                            labels = c("decreased", "insignificant", "increased")) +
         geom_point(data=highlight_df, aes(x=logFC,y=logPval,label=symbol), color='green',size=2, alpha=1, col='black') +
         #geom_text_repel(data=highlight_df, aes(x=logFC, y=logPval, label=highlight_df$symbol), colour='forestgreen', size=2) +

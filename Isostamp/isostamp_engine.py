@@ -33,13 +33,14 @@ class IsoStampEngine(object):
         """
         ms1 = []
         ms2 = []
-
+        
         for output_dict in tqdm.tqdm(self.worker.imap(unit_process_spectrum, self.yield_spectrum(mzml_path))):
             if output_dict['ms level'] == 1:
                 ms1.append(output_dict)
             elif output_dict['ms level'] == 2:
                 ms2.append(output_dict['precursor_info'])
 
+        
         ms1 = pd.DataFrame(ms1).sort_values('ms1_scan_number').drop('ms level', 1)
         ms2 = pd.DataFrame(ms2, columns=['obs_precursor_mz', 'obs_precursor_charge', 'ms1_scan_number',
                                          'ms2_scan_number', 'ms2_rt'])
@@ -145,11 +146,11 @@ class IsoStampEngine(object):
 
         # conditions that if met will return zero propensity
         if data_md.empty or data_md[mz_lower_bound:mz_upper_bound].sum() == 0:
-            logging.warning(f'{isostamp_idx} mz intensity spectrum is empty')
+            #logging.warning(f'{isostamp_idx} mz intensity spectrum is empty')
             return [isostamp_idx, 0, 0, 0, 0]
         match_intensity = data_md[(precursor_mz - 2.5 * pd_mode):(precursor_mz + 2.5 * pd_mode)]
         if match_intensity.sum() == 0:
-            logging.warning(f'{isostamp_idx} match_intensity is empty')
+            #logging.warning(f'{isostamp_idx} match_intensity is empty')
             return [isostamp_idx, 0, 0, 0, 0]
 
         # Brainpy predicts the "regular pattern" to compare against actual data
@@ -237,8 +238,13 @@ class IsoStampEngine(object):
 
         logging.info('step 1: split mzml file')
         time_start = time.time()
-
-        ms1, ms2 = self.split_mzml(mzml_path)
+        
+        try:
+            ms1, ms2 = self.split_mzml(mzml_path)
+        except:
+            pass
+        
+        
         logging.info(f'splitting mzml file took {((time.time()-time_start)/60.):.2f} min')
         logging.info(f'MS1 df shape: {ms1.shape}')
         logging.info(f'MS2 df shape: {ms2.shape}')
