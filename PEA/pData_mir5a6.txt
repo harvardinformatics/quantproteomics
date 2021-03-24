@@ -1,7 +1,0 @@
-TreatmentGroup
-F_127N,1
-F_127C,1
-F_128N,1
-F_130N,0
-F_130C,0
-F_131N,0
