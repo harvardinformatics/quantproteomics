@@ -14,11 +14,28 @@ elementDict={'H':1.00797,'He':4.00260,'Li':6.941,'Be':9.01218,'B':10.81,'C':12.0
 Compound='C4 H7 N O4'
 
 xC=Compound.split(' ')
-
-for element in Compound:
+isotopes=[]
+C=0
+mz=0
+for element in xC:
+	
 	for x in element:
 		
 		if x.isnumeric():
-
-			print(element.find(x))
-
+			ele=element[:element.find(str(x))]
+			eleNum=int(element[element.find(str(x)):])
+			mz+=elementDict[ele]*eleNum
+			#print(element[:element.find(str(x))])
+			#print(element[element.find(str(x)):])
+			
+			if 'C' in element:
+				C=eleNum
+isotopes.append(mz)
+i=0
+Mplus=mz
+while i<C:
+	Mplus+=1.00336
+	isotopes.append(Mplus)                       
+	i+=1
+	
+print(isotopes)
