@@ -1,7 +1,7 @@
 #run on terminal with python3 IsotopeAnalysis.py 'C4 H7 N O4' 'negative' '[M-H]'
 
 import sys
-
+print(sys.argv)
 Compound=sys.argv[1]
 IonMode=sys.argv[2]
 AdductAddition=sys.argv[3]
@@ -35,7 +35,7 @@ def createNegAddict():
 
 
 def createIsotopes(cmp, eleDict):
-	xC=cmp.split(' ')
+	xC=cmp.split('_')
 	isotopes=[]
 	C=0
 	mz=0

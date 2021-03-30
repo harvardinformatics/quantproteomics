@@ -1,0 +1,32 @@
+options(shiny.maxRequestSize=300*1024^2) 
+
+library(MSnbase)
+library(reshape)
+library(lattice)
+library(ggplot2)
+library(limma)
+
+library(ROTS)
+library(stringr)
+library(seqinr)
+
+library(ggrepel)
+library(MKmisc) # glog2
+
+library(gplots)
+
+
+library(gtools)
+library(magick)
+
+library(mwshiny)
+library(dplyr)
+shinyServer(function(input, output, session) {
+  observeEvent(input$calciso, {
+    isofor <- as.character(input$isoformula)
+    print(isofor)
+    system(paste("python3 IsotopeAnalysis.py ", isofor, " ", input$ionmode, " ", input$adduct, wait=FALSE))
+    
+  })
+  
+})
