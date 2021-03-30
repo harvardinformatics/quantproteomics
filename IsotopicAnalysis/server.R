@@ -5,7 +5,7 @@ library(reshape)
 library(lattice)
 library(ggplot2)
 library(limma)
-
+library(mzR)
 library(ROTS)
 library(stringr)
 library(seqinr)
@@ -27,6 +27,21 @@ shinyServer(function(input, output, session) {
     print(isofor)
     system(paste("python3 IsotopeAnalysis.py ", isofor, " ", input$ionmode, " ", input$adduct, wait=FALSE))
     
+  })
+  
+  observeEvent(input$extractmzml, {
+  fileMS <- system.file()
+  MSdata <- openMSfile(input$entermzml)
+  fileName(MSdata)
+  y <- runInfo(MSdata)
+  
+  getScan <- function(msScan, scanNum, retentionTime) {
+    getData <- peaks(msScan, scan=scanNum)
+    
+  }
+  
+  write.csv(x,'compound_spectra.csv', row.names = F)
+  
   })
   
 })
