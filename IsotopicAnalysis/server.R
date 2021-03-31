@@ -40,8 +40,16 @@ shinyServer(function(input, output, session) {
     
   }
   
+  x<-getScan(MSdata, as.numeric(input$scannum), as.numeric(input$rtime))
+  x
   write.csv(x,'compound_spectra.csv', row.names = F)
   
+  })
+  
+  observeEvent(input$calciso, {
+    
+    system(paste("python3 CalcAbundancePerc.py compound_spectra.csv mz_calc.csv", wait=FALSE))
+    
   })
   
 })

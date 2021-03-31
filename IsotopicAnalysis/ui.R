@@ -7,5 +7,8 @@ shinyUI(fluidPage(theme=shinytheme("cyborg"),
                   textInput('adduct', 'Adduct'),
                   actionButton('calciso', 'Calculate Isotope.'),
                   textInput('entermzml', 'Enter mzML File'),
+                  textInput('scannum', 'Enter Scan Number'),
+                  textInput('rtime', 'Enter Retention Time'),
                   actionButton('extractmzml', 'Extract mzML.'),
+                  actionButton('calcperc', 'Calculate Percentage Sum.'),
 ))

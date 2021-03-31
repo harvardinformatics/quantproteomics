@@ -1,6 +1,7 @@
 #run on terminal with python3 IsotopeAnalysis.py 'C4 H7 N O4' 'negative' '[M-H]'
 
 import sys
+import csv
 print(sys.argv)
 Compound=sys.argv[1]
 IonMode=sys.argv[2]
@@ -82,11 +83,15 @@ def adductCalc(isoAr, ionMode, addct):
 			newIsoDist.append(createPosAddict()[addct](iso))
 	return newIsoDist
 
-
+def writeFile(infile, currData):
+	fn = infile
+	with open(fn, 'w', newline="") as myfile:
+	    outputFile = csv.writer(myfile)
+	    outputFile.writerow(currData)
 
 def main():
 	isos=createIsotopes(Compound, createEleDict())
-	print(adductCalc(isos,IonMode,AdductAddition))
+	writeFile('mz_calc.csv',adductCalc(isos,IonMode,AdductAddition))
 
 if __name__=="__main__":
 	main()
