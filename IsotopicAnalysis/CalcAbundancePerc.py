@@ -7,7 +7,6 @@ import re
 import numpy as np
 import argparse
 
-print(sys.argv)
 Infile=sys.argv[1]
 mzFile=sys.argv[2]
 
@@ -26,48 +25,54 @@ def readFile(infile):
 	    return d
 
 
-def calcAbundancePerc(mzdat, cmpdat):
+def calcTopAbundance(mzdat, cmpdat):
 	i=0
 	highAbund=[]
 	while i<len(mzdat):
 		mzLow=float(mzdat[i])-5*(float(mzdat[i])/1000000)
 		mzHigh=float(mzdat[i])+5*(float(mzdat[i])/1000000)
-		#mzLow=132.0295698
-		#mzHigh=132.0308902
 
 		gatherIntensity=[]
 		j=1
 		while j<len(cmpdat):
-			print(float(cmpdat[j][0]))
 			if mzLow<=float(cmpdat[j][0])<=mzHigh:
 				gatherIntensity.append(float(cmpdat[j][1]))
-				print(float(cmpdat[j][1]))
 			
 			j+=1
-		gatherIntensity.sort()
-		highAbund.append(gatherIntensity[len(gatherIntensity)-1])
+		try:
+			gatherIntensity.sort()
+
+			highAbund.append(gatherIntensity[len(gatherIntensity)-1])
+		except IndexError:
+			highAbund.append(0)
 
 		i+=1
-	print(highAbund)
+	
 	return highAbund
 
+def calcPerc(topAbund):
+	sumAbund=sum(topAbund)
+	percAr=[]
+	for i in topAbund:
+		percAr.append(round((100*(i/sumAbund)),1))
+	return percAr
 
 
 
-def writeFile(infile, currData):
+def writeFile(infile, topData, topPerc):
 	fn = infile
 	with open(fn, 'w', newline="") as myfile:
 	    outputFile = csv.writer(myfile)
-	    outputFile.writerow(firstRow)
-	    for site in currData:
-	        outputFile.writerow(site)
+	    outputFile.writerow(topData)
+	    outputFile.writerow(topPerc)
 
 def main():
 
 	compound_data=readFile(Infile)
-	#mzML_data=readFile(mzFile)[0]
 	mzML_data=[132.03023,133.03358,134.03693,135.04028,136.04363]
-	writeFile('percentage_sum.csv',calcAbundancePerc(mzML_data,compound_data))
+	topAbundances=calcTopAbundance(mzML_data,compound_data)
+	percAbundances=calcPerc(topAbundances)
+	writeFile('percentage_sum.csv',topAbundances,percAbundances)
 	
 if __name__=="__main__":
 	main()

@@ -2,7 +2,7 @@
 
 import sys
 import csv
-print(sys.argv)
+
 Compound=sys.argv[1]
 IonMode=sys.argv[2]
 AdductAddition=sys.argv[3]
