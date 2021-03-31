@@ -46,7 +46,7 @@ shinyServer(function(input, output, session) {
   
   })
   
-  observeEvent(input$calciso, {
+  observeEvent(input$calcperc, {
     
     system(paste("python3 CalcAbundancePerc.py compound_spectra.csv mz_calc.csv", wait=FALSE))
     
