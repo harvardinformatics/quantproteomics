@@ -2,7 +2,7 @@ options(shiny.maxRequestSize=300*1024^2)
 
 library(mzR)
 library(mwshiny)
-library(dplyr)
+
 shinyServer(function(input, output, session) {
   observeEvent(input$calciso, {
     isofor <- as.character(input$isoformula)
