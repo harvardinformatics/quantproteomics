@@ -63,12 +63,15 @@ def writeFile(infile, topData, topPerc):
 	fn = infile
 	with open(fn, 'w', newline="") as myfile:
 	    outputFile = csv.writer(myfile)
+	    outputFile.writerow(['M','M+1','M+2','M+3','M+4'])
 	    outputFile.writerow(topData)
 	    outputFile.writerow(topPerc)
 
 def main():
 
 	compound_data=readFile(Infile)
+	#After feedback on Carbon mass this line of code will integrate user input
+	#mzML_data=readFile(mzFile)
 	mzML_data=[132.03023,133.03358,134.03693,135.04028,136.04363]
 	topAbundances=calcTopAbundance(mzML_data,compound_data)
 	percAbundances=calcPerc(topAbundances)
