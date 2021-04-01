@@ -35,12 +35,12 @@ shinyServer(function(input, output, session) {
   fileName(MSdata)
   y <- runInfo(MSdata)
   
-  getScan <- function(msScan, scanNum, retentionTime) {
+  getScan <- function(msScan, scanNum) {
     getData <- peaks(msScan, scan=scanNum)
     
   }
   
-  x<-getScan(MSdata, as.numeric(input$scannum), as.numeric(input$rtime))
+  x<-getScan(MSdata, as.numeric(input$scannum))
   x
   write.csv(x,'compound_spectra.csv', row.names = F)
   
