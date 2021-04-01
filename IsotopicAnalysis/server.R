@@ -1,24 +1,6 @@
 options(shiny.maxRequestSize=300*1024^2) 
 
-library(MSnbase)
-library(reshape)
-library(lattice)
-library(ggplot2)
-library(limma)
 library(mzR)
-library(ROTS)
-library(stringr)
-library(seqinr)
-
-library(ggrepel)
-library(MKmisc) # glog2
-
-library(gplots)
-
-
-library(gtools)
-library(magick)
-
 library(mwshiny)
 library(dplyr)
 shinyServer(function(input, output, session) {
