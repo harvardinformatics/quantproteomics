@@ -8,7 +8,7 @@ IonMode=sys.argv[2]
 AdductAddition=sys.argv[3]
 
 def createEleDict():
-	elementDict={'H':1.00797,'He':4.00260,'Li':6.941,'Be':9.01218,'B':10.81,'C':12.011,'N':14.0067,'O':15.9994,'F':18.998403,'Ne':20.179,
+	elementDict={'H':1.007825,'He':4.00260,'Li':6.941,'Be':9.01218,'B':10.81,'C':12,'N':14.003074,'O':15.9949146,'F':18.998403,'Ne':20.179,
 	'Ne':20.179,'Na':22.98977,'Mg':24.305,'Al':26.98154,'Si':28.0855,'P':30.97376,'S':32.06,'Cl':35.453,'K':39.0983,'Ar':39.948,'Ca':40.08,
 	'Sc':44.9559,'Ti':47.90,'V':50.9415,'Cr':51.996,'Mn':54.9380,'Fe':55.847,'Ni':58.70,'Co':58.9332,'Cu':63.546,'Zn':65.38,'Ga':69.72,
 	'Ge':72.59,'As':74.9,'Se':78.96,'Br':79.904,'Kr':83.80,'Rb':85.4678,'Sr':87.62,'Y':88.9059,'Zr':91.22,'Nb':92.9064,'Mo':95.94,
@@ -21,7 +21,7 @@ def createEleDict():
 
 def createPosAddict():
 	def calcMplusH(M):
-		return M+1.007276
+		return M+1.007825-0.0005485799
 	def calcMplusNa(M):
 		return M+22.989218
 	posAddict={'[M+H]':calcMplusH, '[M+Na]':calcMplusNa}
@@ -29,7 +29,7 @@ def createPosAddict():
 
 def createNegAddict():
 	def calcMminusH(M):
-		return M-1.007276
+		return M-1.007825+0.0005485799
 
 	negAddict={'[M-H]':calcMminusH}
 	return negAddict
@@ -66,7 +66,7 @@ def createIsotopes(cmp, eleDict):
 	i=0
 	Mplus=mz
 	while i<C:
-		Mplus+=1.00336
+		Mplus+=1.0033548
 		isotopes.append(Mplus)                       
 		i+=1
 	return isotopes
