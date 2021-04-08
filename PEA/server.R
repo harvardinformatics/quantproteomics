@@ -22,11 +22,25 @@ library(magick)
 library(mwshiny)
 library(dplyr)
 shinyServer(function(input, output, session) {
-    observeEvent(input$runimputation, {
+    observeEvent(input$runimputation1, {
       impute.df <- read.csv(input$psmfilename, header=TRUE)
       startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
      
       system(paste("python3 missForest_model.py ", input$psmfilename, " ", input$replicatenum1, " ", startAbundance, " ", input$replicatenum2, wait=FALSE))
+      
+    })
+    observeEvent(input$runimputation2, {
+      impute.df <- read.csv(input$psmfilename, header=TRUE)
+      startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
+      
+      system(paste("python3 KNN_model.py ", input$psmfilename, " ", input$replicatenum1, " ", startAbundance, " ", input$replicatenum2, wait=FALSE))
+      
+    })
+    observeEvent(input$runimputation3, {
+      impute.df <- read.csv(input$psmfilename, header=TRUE)
+      startAbundance <- as.integer(grep(paste(input$abundancecolumn,"$",sep=''), colnames(impute.df)))-1
+      
+      system(paste("python3 RegImpute_model.py ", input$psmfilename, " ", input$replicatenum1, " ", startAbundance, " ", input$replicatenum2, wait=FALSE))
       
     })
     observeEvent(input$runPDfilter, {
@@ -353,8 +367,8 @@ shinyServer(function(input, output, session) {
                              labels = c("decreased", "insignificant", "increased")) +
         geom_point(data=highlight_df, aes(x=logFC,y=logPval), color='green',size=2,alpha=1, col='black') +
         #geom_text_repel(data=highlight_df, aes(x=logFC, y=logPval, label=highlight_df$symbol), colour='forestgreen', size=2) +
-        geom_text_repel(data=highlight_df_down, aes(x=logFC, y=logPval, label=highlight_df_down$symbol), colour='black', size=2) +
-        geom_text_repel(data=highlight_df_up, aes(x=logFC, y=logPval, label=highlight_df_up$symbol), colour='black', size=2) +
+        #geom_text_repel(data=highlight_df_down, aes(x=logFC, y=logPval, label=highlight_df_down$symbol), colour='black', size=2) +
+        #geom_text_repel(data=highlight_df_up, aes(x=logFC, y=logPval, label=highlight_df_up$symbol), colour='black', size=2) +
         theme_classic()
         
 
@@ -380,8 +394,8 @@ shinyServer(function(input, output, session) {
                            labels = c("decreased", "insignificant", "increased")) +
         geom_point(data=highlight_df, aes(x=logFC,y=logPval,label=symbol), color='green',size=2, alpha=1, col='black') +
         #geom_text_repel(data=highlight_df, aes(x=logFC, y=logPval, label=highlight_df$symbol), colour='forestgreen', size=2) +
-        geom_text_repel(data=highlight_df_down, aes(x=logFC, y=logPval, label=highlight_df_down$symbol), colour='black', size=2) +
-        geom_text_repel(data=highlight_df_up, aes(x=logFC, y=logPval, label=highlight_df_up$symbol), colour='black', size=2) +
+        #geom_text_repel(data=highlight_df_down, aes(x=logFC, y=logPval, label=highlight_df_down$symbol), colour='black', size=2) +
+        #geom_text_repel(data=highlight_df_up, aes(x=logFC, y=logPval, label=highlight_df_up$symbol), colour='black', size=2) +
         theme_classic()
       
       
