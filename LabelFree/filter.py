@@ -14,18 +14,22 @@ def readFile(infile):
 	    file = csv.reader(myfile, dialect='excel')
 	    
 	    d = []
+	    seq=[]
 	    for row in file:
 	        d.append(row)
+	        seq.append(row[4])
 	    myfile.close()
 	    firstRow=d[0]
-	    return d
+	    return d, seq
 
 
 def countPSMs(PSMlist, PSMseq):
 	countsPSM=0
+	PSMupperList=[x.upper() for x in PSMlist]
+	print(PSMupperList)
 	i=0
-	while i<len(PSMlist):
-		if PSMseq == PSMlist[i]:
+	while i<len(PSMupperList):
+		if PSMseq.upper() == PSMupperList[i]:
 			countsPSM+=1
 		i+=1
 	return countsPSM
@@ -47,19 +51,25 @@ def PSMposition(modi,prot):
 	return modPos, len(modif)
 
 
-def filterPSMs(dat):
+def filterPSMs(dat,sq):
 	i=1
+	newAr=[]
 	while i<len(dat):
-		if any(['Deamidated' in dat[i][5], 'Oxidation' in dat[i][5]]):
+
+		if countPSMs(sq,dat[i][4]) <= 2:
+			print(dat[i][4])
 			pass
 
-		if countPSMs(dat[4],dat[i][4]) <= 2:
+		elif any(['Deamidated' in dat[i][5], 'Oxidation' in dat[i][5]]):
 			pass
 
-		dat[i].append(PSMposition(dat[i][5],dat[i][44])[0])
-		dat[i].append(PSMposition(dat[i][5],dat[i][44])[1])
+		else:
+
+			dat[i].append(PSMposition(dat[i][5],dat[i][44])[0])
+			dat[i].append(PSMposition(dat[i][5],dat[i][44])[1])
+			newAr.append(dat[i])
 		i+=1
-	return dat
+	return newAr
 
 
 
@@ -75,9 +85,9 @@ def writeFile(infile, currData):
 	    	outputFile.writerow(site)
 
 def main():
-	data=readFile('201123L_SAM07668_BY90_DR294_DR294A_CF_final_JUNB_PSMs.csv')
+	data,seqs=readFile('201123L_SAM07668_BY90_DR294_DR294A_CF_final_JUNB_PSMs.csv')
 
-	writeFile('201123L_SAM07668_BY90_DR294_DR294A_CF_final_JUNB_PSMs.csv', filterPSMs(data))
+	writeFile('201123L_SAM07668_BY90_DR294_DR294A_CF_final_JUNB_PSMs.csv', filterPSMs(data,seqs))
 
 if __name__=="__main__":
 	main()
