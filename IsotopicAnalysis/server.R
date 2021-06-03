@@ -12,24 +12,12 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$extractmzml, {
-  fileMS <- system.file()
-  MSdata <- openMSfile(input$entermzml)
-  fileName(MSdata)
-  y <- runInfo(MSdata)
-  
-  getScan <- function(msScan, scanNum) {
-    getData <- peaks(msScan, scan=scanNum)
-    
-  }
-  
-  x<-getScan(MSdata, as.numeric(input$scannum))
-  x
-  write.csv(x,'compound_spectra.csv', row.names = F)
-  
+    mzFile <- as.character(input$entermzml)
+    rt <- as.character(input$rtime)
+    system(paste("python3 getSpectra.py ", mzFile, " ", rt, wait=FALSE))
   })
   
   observeEvent(input$calcperc, {
-    
     system(paste("python3 CalcAbundancePerc.py compound_spectra.csv mz_calc.csv", wait=FALSE))
     
   })
