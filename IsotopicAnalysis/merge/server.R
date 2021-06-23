@@ -7,7 +7,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$calciso, {
     isofor <- as.character(input$isoformula)
     print(isofor)
-    system(paste("python3 IsotopeAnalysis_Merge.py ", isofor, " ", input$ionmode, " ", input$adduct, " ", mzFile, " ", wait=FALSE))
+    system(paste("python3 IsotopeAnalysis_Merge.py ", isofor, " ", input$ionmode, " ", input$adduct, " ", input$entermzml, " ", input$rtime, wait=FALSE))
     
   })
   

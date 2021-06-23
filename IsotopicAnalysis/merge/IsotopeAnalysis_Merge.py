@@ -1,5 +1,5 @@
 #run on terminal with python3 IsotopeAnalysis.py 'C4 H7 N O4' 'negative' '[M-H]'
-
+from pyopenms import *
 import sys
 import csv
 
